@@ -33,7 +33,7 @@ func (m *userRepository) InsertOne(ctx context.Context, user *domain.User) (*dom
 
 	_, err = m.Collection.InsertOne(ctx, user)
 	if err != nil {
-		return user, err
+		return nil, err
 	}
 
 	return user, nil
@@ -59,29 +59,39 @@ func (m *userRepository) FindOne(ctx context.Context, id string) (*domain.User, 
 }
 
 func (m *userRepository) GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]domain.User, int64, error) {
+
 	var (
 		user []domain.User
 		skip int64
-		opts = options.Find()
+		opts *options.FindOptions
 	)
 
 	skip = (p * rp) - rp
-	opts.SetLimit(rp)
-	opts.SetSkip(skip)
-
 	if setsort != nil {
-		opts.SetSort(setsort)
+		opts = options.MergeFindOptions(
+			options.Find().SetLimit(rp),
+			options.Find().SetSkip(skip),
+			options.Find().SetSort(setsort),
+		)
+	} else {
+		opts = options.MergeFindOptions(
+			options.Find().SetLimit(rp),
+			options.Find().SetSkip(skip),
+		)
 	}
 
-	cursor, err := m.Collection.Find(ctx, filter, opts)
+	cursor, err := m.Collection.Find(
+		ctx,
+		filter,
+		opts,
+	)
+
 	if err != nil {
 		return nil, 0, err
 	}
-
 	if cursor == nil {
 		return nil, 0, fmt.Errorf("nil cursor value")
 	}
-
 	err = cursor.All(ctx, &user)
 	if err != nil {
 		return nil, 0, err

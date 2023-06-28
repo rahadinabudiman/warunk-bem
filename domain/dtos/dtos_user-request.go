@@ -36,3 +36,8 @@ type UpdateUserRequest struct {
 type DeleteUserRequest struct {
 	Password string `json:"password" form:"password" validate:"required" example:"rahadinabudimansundara"`
 }
+
+type LoginUserRequest struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
+}

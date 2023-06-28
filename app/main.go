@@ -5,6 +5,8 @@ import (
 	"log"
 	"time"
 	"warunk-bem/author"
+	_loginHttp "warunk-bem/login/delivery/http"
+	_loginUsecase "warunk-bem/login/usecase"
 	_userHttp "warunk-bem/user/delivery/http"
 	_userHttpMiddlewares "warunk-bem/user/delivery/http/middlewares"
 	_userRepo "warunk-bem/user/repository"
@@ -33,6 +35,9 @@ func main() {
 	userRepo := _userRepo.NewUserRepository(database)
 	usrUsecase := _userUcase.NewUserUsecase(userRepo, userAmountRepo, timeoutContext)
 	_userHttp.NewUserHandler(e, usrUsecase)
+
+	loginUsecase := _loginUsecase.NewLoginUsecase(userRepo, timeoutContext)
+	_loginHttp.NewLoginHandler(e, loginUsecase, author.App.Config)
 
 	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))
 	log.Fatal(e.Start(appPort))

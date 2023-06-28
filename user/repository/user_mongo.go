@@ -26,17 +26,17 @@ func NewUserRepository(DB mongo.Database) domain.UserRepository {
 	return &userRepository{DB, DB.Collection(collectionName)}
 }
 
-func (m *userRepository) InsertOne(ctx context.Context, user *domain.User) (*domain.User, error) {
+func (m *userRepository) InsertOne(ctx context.Context, req *domain.User) (*domain.User, error) {
 	var (
 		err error
 	)
 
-	_, err = m.Collection.InsertOne(ctx, user)
+	_, err = m.Collection.InsertOne(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return req, nil
 }
 
 func (m *userRepository) FindOne(ctx context.Context, id string) (*domain.User, error) {
@@ -122,6 +122,7 @@ func (m *userRepository) UpdateOne(ctx context.Context, user *domain.User, id st
 		"username":   user.Username,
 		"password":   user.Password,
 		"updated_at": time.Now(),
+		"role":       user.Role,
 	}}
 
 	_, err = m.Collection.UpdateOne(ctx, filter, update)
@@ -154,7 +155,6 @@ func (m *userRepository) GetByCredential(ctx context.Context, username string, p
 
 	return &user, nil
 }
-
 func (m *userRepository) DeleteOne(ctx context.Context, id string) error {
 	var (
 		err error
@@ -171,4 +171,32 @@ func (m *userRepository) DeleteOne(ctx context.Context, id string) error {
 	}
 
 	return nil
+}
+
+func (m *userRepository) FindUsername(ctx context.Context, username string) (*domain.User, error) {
+	var (
+		user domain.User
+		err  error
+	)
+
+	err = m.Collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
+	if err != nil {
+		return &user, err
+	}
+
+	return &user, nil
+}
+
+func (m *userRepository) FindEmail(ctx context.Context, email string) (*domain.User, error) {
+	var (
+		user domain.User
+		err  error
+	)
+
+	err = m.Collection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
+	if err != nil {
+		return &user, err
+	}
+
+	return &user, nil
 }

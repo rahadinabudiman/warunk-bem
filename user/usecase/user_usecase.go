@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 	"warunk-bem/domain"
+	"warunk-bem/domain/dtos"
+	"warunk-bem/user/usecase/helpers"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -20,17 +22,48 @@ func NewUserUsecase(u domain.UserRepository, to time.Duration) domain.UserUsecas
 	}
 }
 
-func (u *userUsecase) InsertOne(c context.Context, m *domain.User) (*domain.User, error) {
+func (u *userUsecase) InsertOne(c context.Context, req *dtos.RegisterUserRequest) (*dtos.RegisterUserResponse, error) {
+	var res *dtos.RegisterUserResponse
+
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
-	m.ID = primitive.NewObjectID()
-	m.CreatedAt = time.Now()
-	m.UpdatedAt = time.Now()
+	req.ID = primitive.NewObjectID()
+	req.CreatedAt = time.Now()
+	req.UpdatedAt = time.Now()
 
-	res, err := u.userRepo.InsertOne(ctx, m)
+	passwordHash, err := helpers.HashPassword(req.Password)
 	if err != nil {
 		return res, err
+	}
+
+	req.Password = passwordHash
+	req.Verified = false
+
+	CreateUser := &domain.User{
+		ID:        req.ID,
+		CreatedAt: req.CreatedAt,
+		UpdatedAt: req.UpdatedAt,
+		Name:      req.Name,
+		Email:     req.Email,
+		Username:  req.Username,
+		Password:  req.Password,
+		Verified:  req.Verified,
+		Role:      req.Role,
+	}
+
+	createdUser, err := u.userRepo.InsertOne(ctx, CreateUser)
+	if err != nil {
+		return res, err
+	}
+
+	res = &dtos.RegisterUserResponse{
+		ID:       createdUser.ID.Hex(),
+		Name:     createdUser.Name,
+		Email:    createdUser.Email,
+		Username: createdUser.Username,
+		Verified: createdUser.Verified,
+		Role:     createdUser.Role,
 	}
 
 	return res, nil

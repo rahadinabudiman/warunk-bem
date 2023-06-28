@@ -34,7 +34,7 @@ func NewUserHandler(e *echo.Echo, uu domain.UserUsecase) {
 	user.DELETE("/:id", handler.DeleteOne)
 }
 
-func isRequestValid(m *domain.User) (bool, error) {
+func isRequestValid(m *dtos.RegisterUserRequest) (bool, error) {
 	validate := validator.New()
 	err := validate.Struct(m)
 	if err != nil {
@@ -45,7 +45,7 @@ func isRequestValid(m *domain.User) (bool, error) {
 
 func (user *UserHandler) InsertOne(c echo.Context) error {
 	var (
-		usr domain.User
+		usr dtos.RegisterUserRequest
 		err error
 	)
 

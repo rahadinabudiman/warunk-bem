@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"time"
+	"warunk-bem/domain/dtos"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -15,20 +16,20 @@ type User struct {
 	Email     string             `bson:"email" json:"email" validate:"required"`
 	Username  string             `bson:"username" json:"username" validate:"required"`
 	Password  string             `bson:"password" json:"password" validate:"required"`
+	Verified  bool               `bson:"verified" json:"verified"`
 	Role      string             `bson:"role" json:"role" validate:"required"`
 }
 
 type UserRepository interface {
-	InsertOne(ctx context.Context, u *User) (*User, error)
+	InsertOne(ctx context.Context, req *User) (*User, error)
 	FindOne(ctx context.Context, id string) (*User, error)
 	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]User, int64, error)
 	UpdateOne(ctx context.Context, user *User, id string) (*User, error)
 	GetByCredential(ctx context.Context, username string, password string) (*User, error)
 	DeleteOne(ctx context.Context, id string) error
 }
-
 type UserUsecase interface {
-	InsertOne(ctx context.Context, u *User) (*User, error)
+	InsertOne(ctx context.Context, req *dtos.RegisterUserRequest) (*dtos.RegisterUserResponse, error)
 	FindOne(ctx context.Context, id string) (*User, error)
 	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]User, int64, error)
 	UpdateOne(ctx context.Context, user *User, id string) (*User, error)

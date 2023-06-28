@@ -26,17 +26,17 @@ func NewUserRepository(DB mongo.Database) domain.UserRepository {
 	return &userRepository{DB, DB.Collection(collectionName)}
 }
 
-func (m *userRepository) InsertOne(ctx context.Context, user *domain.User) (*domain.User, error) {
+func (m *userRepository) InsertOne(ctx context.Context, req *domain.User) (*domain.User, error) {
 	var (
 		err error
 	)
 
-	_, err = m.Collection.InsertOne(ctx, user)
+	_, err = m.Collection.InsertOne(ctx, req)
 	if err != nil {
-		return user, err
+		return nil, err
 	}
 
-	return user, nil
+	return req, nil
 }
 
 func (m *userRepository) FindOne(ctx context.Context, id string) (*domain.User, error) {

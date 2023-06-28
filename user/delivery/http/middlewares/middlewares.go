@@ -18,6 +18,16 @@ func (m *GoMiddleware) CORS(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+// Allow CORS
+func (m *GoMiddleware) AllowCORS(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		c.Response().Header().Set(echo.HeaderAccessControlAllowOrigin, "*")
+		c.Response().Header().Set(echo.HeaderAccessControlAllowHeaders, "Content-Type, Authorization")
+		c.Response().Header().Set(echo.HeaderAccessControlAllowMethods, "GET, POST, PUT, DELETE")
+		return next(c)
+	}
+}
+
 func (m *GoMiddleware) Log(e *echo.Echo) {
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: `[${time_rfc3339}] ${status} ${method} ${host}${path} ${latency_human}` + "\n",

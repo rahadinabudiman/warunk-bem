@@ -34,3 +34,8 @@ type UpdateUserResponse struct {
 	Username string `json:"username" form:"username" validate:"required" example:"r4ha"`
 	Email    string `json:"email" form:"email" validate:"required,email" example:"me@r4ha.com"`
 }
+
+type LoginUserResponse struct {
+	Username string `json:"username" validate:"required"`
+	Token    string `json:"token" form:"token"`
+}

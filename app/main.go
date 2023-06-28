@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"time"
+	_loginHttp "warunk-bem/auth/delivery/http"
+	_loginUsecase "warunk-bem/auth/usecase"
 	"warunk-bem/author"
-	_loginHttp "warunk-bem/login/delivery/http"
-	_loginUsecase "warunk-bem/login/usecase"
+	_jwt "warunk-bem/jwt/usecase"
 	_userHttp "warunk-bem/user/delivery/http"
 	_userHttpMiddlewares "warunk-bem/user/delivery/http/middlewares"
 	_userRepo "warunk-bem/user/repository"
@@ -36,7 +37,15 @@ func main() {
 	usrUsecase := _userUcase.NewUserUsecase(userRepo, userAmountRepo, timeoutContext)
 	_userHttp.NewUserHandler(e, usrUsecase)
 
-	loginUsecase := _loginUsecase.NewLoginUsecase(userRepo, timeoutContext)
+	jwt := _jwt.NewJwtUsecase(userRepo, timeoutContext, author.App.Config)
+	userJwt := e.Group("")
+	jwt.SetJwtUser(userJwt)
+	adminJwt := e.Group("")
+	jwt.SetJwtUser(adminJwt)
+	generalJwt := e.Group("")
+	jwt.SetJwtUser(generalJwt)
+
+	loginUsecase := _loginUsecase.NewLoginUsecase(userRepo, timeoutContext, author.App.Config)
 	_loginHttp.NewLoginHandler(e, loginUsecase, author.App.Config)
 
 	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))

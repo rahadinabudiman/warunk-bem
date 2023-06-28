@@ -3,6 +3,8 @@ package domain
 import (
 	"context"
 	"warunk-bem/domain/dtos"
+
+	"github.com/labstack/echo"
 )
 
 type Login struct {
@@ -11,5 +13,5 @@ type Login struct {
 }
 
 type LoginUsecase interface {
-	GetUser(ctx context.Context, req *dtos.LoginUserRequest) (*User, error)
+	GetUser(c echo.Context, ctx context.Context, req *dtos.LoginUserRequest) (*dtos.LoginUserResponse, error)
 }

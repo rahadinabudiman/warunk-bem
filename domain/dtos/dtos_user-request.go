@@ -19,6 +19,14 @@ type RegisterUserRequest struct {
 	Role            string `json:"role" form:"role" gorm:"type:enum('Admin', 'Super Admin');default:'Admin'; not-null" example:"Admin"`
 }
 
+type RegisterUserAmountRequest struct {
+	ID        primitive.ObjectID `bson:"_id" json:"id"`
+	CreatedAt time.Time          `json:"created_at"`
+	UpdatedAt time.Time          `json:"updated_at"`
+	UserID    primitive.ObjectID `bson:"user_id" json:"user_id"`
+	Amount    float64            `bson:"amount" json:"amount"`
+}
+
 type UpdateUserRequest struct {
 	Name     string `json:"name" form:"nama" validate:"required" example:"Rahadina Budiman Sundara"`
 	Username string `json:"username" form:"username" validate:"required" example:"r4ha"`
@@ -27,4 +35,9 @@ type UpdateUserRequest struct {
 
 type DeleteUserRequest struct {
 	Password string `json:"password" form:"password" validate:"required" example:"rahadinabudimansundara"`
+}
+
+type LoginUserRequest struct {
+	Username string `json:"username" validate:"required"`
+	Password string `json:"password" validate:"required"`
 }

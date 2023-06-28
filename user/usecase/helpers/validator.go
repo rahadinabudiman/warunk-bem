@@ -13,9 +13,12 @@ type CustomValidator struct {
 	Validators *validator.Validate
 }
 
+func (cv *CustomValidator) ValidateStruct(s interface{}) error {
+	return cv.Validators.Struct(s)
+}
+
 func (cv *CustomValidator) Validate(i interface{}) error {
 	err := cv.Validators.Struct(i)
-
 	if err != nil {
 		var sb strings.Builder
 		sb.WriteString("Validation error:\n")

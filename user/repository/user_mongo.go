@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 	"warunk-bem/domain"
+	"warunk-bem/domain/dtos"
 	"warunk-bem/mongo"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -137,15 +138,15 @@ func (m *userRepository) UpdateOne(ctx context.Context, user *domain.User, id st
 	return user, nil
 }
 
-func (m *userRepository) GetByCredential(ctx context.Context, username string, password string) (*domain.User, error) {
+func (m *userRepository) GetByCredential(ctx context.Context, req *dtos.LoginUserRequest) (*domain.User, error) {
 	var (
 		user domain.User
 		err  error
 	)
 
 	credential := bson.M{
-		"username": username,
-		"password": password,
+		"username": req.Username,
+		"password": req.Password,
 	}
 
 	err = m.Collection.FindOne(ctx, credential).Decode(&user)

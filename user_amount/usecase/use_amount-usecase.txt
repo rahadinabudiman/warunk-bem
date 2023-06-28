@@ -1,0 +1,59 @@
+package usecase
+
+import (
+	"context"
+	"time"
+	"warunk-bem/domain"
+	"warunk-bem/domain/dtos"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
+
+type userAmountUsecase struct {
+	userAmountRepo domain.UserAmountRepository
+	contextTimeout time.Duration
+}
+
+func NewUserAmountUsecase(u domain.UserAmountRepository, to time.Duration) domain.UserAmountUsecase {
+	return &userAmountUsecase{
+		userAmountRepo: u,
+		contextTimeout: to,
+	}
+}
+
+func (u *userAmountUsecase) InsertOne(ctx context.Context, req *dtos.RegisterUserAmountRequest, id string) (*dtos.RegisterUserAmountResponse, error) {
+	var res *dtos.RegisterUserAmountResponse
+
+	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
+	defer cancel()
+
+	req.ID = primitive.NewObjectID()
+	req.CreatedAt = time.Now()
+	req.UpdatedAt = time.Now()
+	userID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return res, err
+	}
+	req.UserID = userID
+	req.Amount = 0
+
+	CreateUserAmount := &domain.UserAmount{
+		ID:        req.ID,
+		CreatedAt: req.CreatedAt,
+		UpdatedAt: req.UpdatedAt,
+		UserID:    req.UserID,
+		Amount:    req.Amount,
+	}
+
+	userAmount, err := u.userAmountRepo.InsertOne(ctx, CreateUserAmount)
+	if err != nil {
+		return res, err
+	}
+
+	res = &dtos.RegisterUserAmountResponse{
+		UserID: userAmount.UserID,
+		Amount: userAmount.Amount,
+	}
+
+	return res, nil
+}

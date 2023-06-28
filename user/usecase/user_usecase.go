@@ -15,12 +15,14 @@ import (
 
 type userUsecase struct {
 	userRepo       domain.UserRepository
+	UserAmountRepo domain.UserAmountRepository
 	contextTimeout time.Duration
 }
 
-func NewUserUsecase(u domain.UserRepository, to time.Duration) domain.UserUsecase {
+func NewUserUsecase(u domain.UserRepository, ua domain.UserAmountRepository, to time.Duration) domain.UserUsecase {
 	return &userUsecase{
 		userRepo:       u,
+		UserAmountRepo: ua,
 		contextTimeout: to,
 	}
 }
@@ -76,6 +78,19 @@ func (u *userUsecase) InsertOne(c context.Context, req *dtos.RegisterUserRequest
 	}
 
 	createdUser, err := u.userRepo.InsertOne(ctx, CreateUser)
+	if err != nil {
+		return res, err
+	}
+
+	UserAmount := &domain.UserAmount{
+		ID:        primitive.NewObjectID(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+		UserID:    createdUser.ID,
+		Amount:    0,
+	}
+
+	_, err = u.UserAmountRepo.InsertOne(ctx, UserAmount)
 	if err != nil {
 		return res, err
 	}

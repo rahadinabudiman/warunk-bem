@@ -27,7 +27,7 @@ type UserRepository interface {
 	FindEmail(ctx context.Context, email string) (*User, error)
 	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]User, int64, error)
 	UpdateOne(ctx context.Context, user *User, id string) (*User, error)
-	GetByCredential(ctx context.Context, username string, password string) (*User, error)
+	GetByCredential(ctx context.Context, req *dtos.LoginUserRequest) (*User, error)
 	DeleteOne(ctx context.Context, id string) error
 }
 type UserUsecase interface {

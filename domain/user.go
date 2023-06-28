@@ -23,6 +23,8 @@ type User struct {
 type UserRepository interface {
 	InsertOne(ctx context.Context, req *User) (*User, error)
 	FindOne(ctx context.Context, id string) (*User, error)
+	FindUsername(ctx context.Context, username string) (*User, error)
+	FindEmail(ctx context.Context, email string) (*User, error)
 	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]User, int64, error)
 	UpdateOne(ctx context.Context, user *User, id string) (*User, error)
 	GetByCredential(ctx context.Context, username string, password string) (*User, error)
@@ -30,8 +32,8 @@ type UserRepository interface {
 }
 type UserUsecase interface {
 	InsertOne(ctx context.Context, req *dtos.RegisterUserRequest) (*dtos.RegisterUserResponse, error)
-	FindOne(ctx context.Context, id string) (*User, error)
-	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]User, int64, error)
-	UpdateOne(ctx context.Context, user *User, id string) (*User, error)
-	DeleteOne(ctx context.Context, id string) error
+	FindOne(ctx context.Context, id string) (res *dtos.UserProfileResponse, err error)
+	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]dtos.UserProfileResponse, int64, error)
+	UpdateOne(ctx context.Context, user *dtos.UpdateUserRequest, id string) (*dtos.UpdateUserResponse, error)
+	DeleteOne(c context.Context, id string, req dtos.DeleteUserRequest) (res dtos.ResponseMessage, err error)
 }

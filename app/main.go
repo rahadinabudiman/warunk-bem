@@ -9,7 +9,9 @@ import (
 	_userHttpMiddlewares "warunk-bem/user/delivery/http/middlewares"
 	_userRepo "warunk-bem/user/repository"
 	_userUcase "warunk-bem/user/usecase"
+	"warunk-bem/user/usecase/helpers"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo"
 )
 
@@ -19,6 +21,9 @@ func main() {
 	middlewares.Log(e)
 	e.Use(middlewares.AllowCORS)
 	e.Use(middlewares.CORS)
+
+	cv := &helpers.CustomValidator{Validators: validator.New()}
+	e.Validator = cv
 
 	timeoutContext := time.Duration(author.App.Config.GetInt("CONTEXT_TIMEOUT")) * time.Second
 	database := author.App.Mongo.Database(author.App.Config.GetString("MONGODB_NAME"))

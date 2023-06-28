@@ -131,19 +131,8 @@ func (user *UserHandler) FindOne(c echo.Context) error {
 }
 
 func (user *UserHandler) GetAll(c echo.Context) error {
-
-	type Response struct {
-		Total       int64         `json:"total"`
-		PerPage     int64         `json:"per_page"`
-		CurrentPage int64         `json:"current_page"`
-		LastPage    int64         `json:"last_page"`
-		From        int64         `json:"from"`
-		To          int64         `json:"to"`
-		User        []domain.User `json:"users"`
-	}
-
 	var (
-		res   []domain.User
+		res   []dtos.UserProfileResponse
 		count int64
 	)
 
@@ -176,7 +165,7 @@ func (user *UserHandler) GetAll(c echo.Context) error {
 		)
 	}
 
-	result := Response{
+	result := dtos.GetAllUserResponse{
 		Total:       count,
 		PerPage:     rp,
 		CurrentPage: page,
@@ -200,7 +189,7 @@ func (user *UserHandler) UpdateOne(c echo.Context) error {
 	id := c.Param("id")
 
 	var (
-		usr domain.User
+		usr dtos.UpdateUserRequest
 		err error
 	)
 
@@ -246,12 +235,25 @@ func (user *UserHandler) UpdateOne(c echo.Context) error {
 func (user *UserHandler) DeleteOne(c echo.Context) error {
 	id := c.Param("id")
 
+	req := dtos.DeleteUserRequest{}
+	c.Bind(&req)
+	if err := c.Validate(req); err != nil {
+		return c.JSON(
+			http.StatusUnprocessableEntity,
+			dtos.NewErrorResponse(
+				http.StatusUnprocessableEntity,
+				"Please verify your password and try again",
+				dtos.GetErrorData(err),
+			),
+		)
+	}
+
 	ctx := c.Request().Context()
 	if ctx == nil {
 		ctx = context.Background()
 	}
 
-	err := user.UsrUsecase.DeleteOne(ctx, id)
+	_, err := user.UsrUsecase.DeleteOne(ctx, id, req)
 	if err != nil {
 		return c.JSON(
 			http.StatusInternalServerError,

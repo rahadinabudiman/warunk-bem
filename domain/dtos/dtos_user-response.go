@@ -1,9 +1,16 @@
 package dtos
 
+import "go.mongodb.org/mongo-driver/bson/primitive"
+
 type RegisterUserResponse struct {
 	Name     string `json:"name" example:"Rahadina Budiman Sundara"`
 	Username string `json:"username" example:"r4ha"`
 	Email    string `json:"email" example:"r4ha@proton.me"`
+}
+
+type RegisterUserAmountResponse struct {
+	UserID primitive.ObjectID `bson:"user_id" json:"user_id"`
+	Amount float64            `bson:"amount" json:"amount"`
 }
 
 type UserProfileResponse struct {

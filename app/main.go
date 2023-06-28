@@ -10,6 +10,7 @@ import (
 	_userRepo "warunk-bem/user/repository"
 	_userUcase "warunk-bem/user/usecase"
 	"warunk-bem/user/usecase/helpers"
+	_userAmountRepo "warunk-bem/user_amount/repository"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo"
@@ -27,8 +28,10 @@ func main() {
 
 	timeoutContext := time.Duration(author.App.Config.GetInt("CONTEXT_TIMEOUT")) * time.Second
 	database := author.App.Mongo.Database(author.App.Config.GetString("MONGODB_NAME"))
+	userAmountRepo := _userAmountRepo.NewUserAmountRepository(database)
+
 	userRepo := _userRepo.NewUserRepository(database)
-	usrUsecase := _userUcase.NewUserUsecase(userRepo, timeoutContext)
+	usrUsecase := _userUcase.NewUserUsecase(userRepo, userAmountRepo, timeoutContext)
 	_userHttp.NewUserHandler(e, usrUsecase)
 
 	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))

@@ -33,7 +33,7 @@ func (m *userRepository) InsertOne(ctx context.Context, user *domain.User) (*dom
 
 	_, err = m.Collection.InsertOne(ctx, user)
 	if err != nil {
-		return nil, err
+		return user, err
 	}
 
 	return user, nil
@@ -122,6 +122,7 @@ func (m *userRepository) UpdateOne(ctx context.Context, user *domain.User, id st
 		"username":   user.Username,
 		"password":   user.Password,
 		"updated_at": time.Now(),
+		"role":       user.Role,
 	}}
 
 	_, err = m.Collection.UpdateOne(ctx, filter, update)
@@ -154,7 +155,6 @@ func (m *userRepository) GetByCredential(ctx context.Context, username string, p
 
 	return &user, nil
 }
-
 func (m *userRepository) DeleteOne(ctx context.Context, id string) error {
 	var (
 		err error

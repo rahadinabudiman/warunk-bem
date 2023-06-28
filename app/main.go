@@ -19,7 +19,7 @@ func main() {
 	middlewares.Log(e)
 	e.Use(middlewares.CORS)
 
-	timeoutContext := time.Duration(author.App.Config.GetInt("context.timeout")) * time.Second
+	timeoutContext := time.Duration(author.App.Config.GetInt("CONTEXT_TIMEOUT")) * time.Second
 	database := author.App.Mongo.Database(author.App.Config.GetString("MONGODB_NAME"))
 	userRepo := _userRepo.NewUserRepository(database)
 	usrUsecase := _userUcase.NewUserUsecase(userRepo, timeoutContext)

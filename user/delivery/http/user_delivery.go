@@ -28,10 +28,10 @@ func NewUserHandler(e *echo.Echo, uu domain.UserUsecase) {
 	user := api.Group("/user")
 
 	user.POST("", handler.InsertOne)
-	user.GET("/profile", handler.FindOne)
+	user.GET("/:id", handler.FindOne)
 	user.GET("", handler.GetAll)
-	user.PUT("", handler.UpdateOne)
-	user.DELETE("", handler.DeleteOne)
+	user.PUT("/:id", handler.UpdateOne)
+	user.DELETE("/:id", handler.DeleteOne)
 }
 
 func isRequestValid(m *domain.User) (bool, error) {
@@ -101,7 +101,7 @@ func (user *UserHandler) InsertOne(c echo.Context) error {
 }
 
 func (user *UserHandler) FindOne(c echo.Context) error {
-	id := c.QueryParam("id")
+	id := c.Param("id")
 
 	ctx := c.Request().Context()
 	if ctx == nil {
@@ -197,8 +197,7 @@ func (user *UserHandler) GetAll(c echo.Context) error {
 }
 
 func (user *UserHandler) UpdateOne(c echo.Context) error {
-
-	id := c.QueryParam("id")
+	id := c.Param("id")
 
 	var (
 		usr domain.User
@@ -245,7 +244,7 @@ func (user *UserHandler) UpdateOne(c echo.Context) error {
 }
 
 func (user *UserHandler) DeleteOne(c echo.Context) error {
-	id := c.QueryParam("id")
+	id := c.Param("id")
 
 	ctx := c.Request().Context()
 	if ctx == nil {

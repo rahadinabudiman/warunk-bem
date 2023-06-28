@@ -9,10 +9,10 @@ import (
 func InitConfig() *viper.Viper {
 	config := viper.New()
 
-	config.SetConfigFile(`.env.dev`)
+	config.SetConfigFile(`.env`)
 	err := config.ReadInConfig()
 	if err != nil {
-		panic("Cant Find File .env.dev")
+		panic("Cannot find .env file")
 	}
 
 	if config.GetBool(`debug`) {

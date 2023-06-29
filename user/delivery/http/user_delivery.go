@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"warunk-bem/domain"
 	"warunk-bem/domain/dtos"
+	"warunk-bem/user/delivery/http/middlewares"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo"
@@ -18,20 +19,19 @@ type UserHandler struct {
 	UsrUsecase domain.UserUsecase
 }
 
-func NewUserHandler(e *echo.Echo, uu domain.UserUsecase) {
+func NewUserHandler(api *echo.Group, userJwt *echo.Group, uu domain.UserUsecase) {
 	handler := &UserHandler{
 		UsrUsecase: uu,
 	}
 
 	// Main API
-	api := e.Group("/api/v1")
-	user := api.Group("/user")
+	userAuth := userJwt.Group("/user")
 
-	user.POST("", handler.InsertOne)
-	user.GET("/:id", handler.FindOne)
-	user.GET("", handler.GetAll)
-	user.PUT("/:id", handler.UpdateOne)
-	user.DELETE("/:id", handler.DeleteOne)
+	api.POST("", handler.InsertOne)
+	userAuth.GET("/:id", handler.FindOne)
+	userAuth.GET("", handler.GetAll)
+	userAuth.PUT("/:id", handler.UpdateOne)
+	userAuth.DELETE("/:id", handler.DeleteOne)
 }
 
 func isRequestValid(m *dtos.RegisterUserRequest) (bool, error) {
@@ -101,7 +101,28 @@ func (user *UserHandler) InsertOne(c echo.Context) error {
 }
 
 func (user *UserHandler) FindOne(c echo.Context) error {
+	dataUser, err := middlewares.IsUser(c)
+	if err != nil {
+		return c.JSON(
+			http.StatusBadRequest,
+			dtos.NewErrorResponse(
+				http.StatusBadRequest,
+				"Please login first",
+				dtos.GetErrorData(err),
+			),
+		)
+	}
 	id := c.Param("id")
+
+	if dataUser != id {
+		return c.JSON(
+			http.StatusForbidden,
+			dtos.NewResponseMessage(
+				http.StatusForbidden,
+				"Forbidden",
+			),
+		)
+	}
 
 	ctx := c.Request().Context()
 	if ctx == nil {

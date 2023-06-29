@@ -35,7 +35,6 @@ func main() {
 
 	userRepo := _userRepo.NewUserRepository(database)
 	usrUsecase := _userUcase.NewUserUsecase(userRepo, userAmountRepo, timeoutContext)
-	_userHttp.NewUserHandler(e, usrUsecase)
 
 	// Main Routes API
 	api := e.Group("/api/v1")
@@ -47,6 +46,8 @@ func main() {
 	jwt.SetJwtUser(adminJwt)
 	generalJwt := api.Group("")
 	jwt.SetJwtUser(generalJwt)
+
+	_userHttp.NewUserHandler(api, userJwt, usrUsecase)
 
 	loginUsecase := _authUsecase.NewAuthUsecase(userRepo, timeoutContext, author.App.Config)
 	_authHttp.NewAuthHandler(api, generalJwt, loginUsecase, author.App.Config)

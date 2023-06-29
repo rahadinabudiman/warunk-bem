@@ -3,7 +3,7 @@ package middlewares
 import (
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/dgrijalva/jwt-go"
 )
 
 func CreateJwtToken(uname string, jtype string, lifetime int64, secret string) (string, error) {
@@ -22,7 +22,7 @@ func CreateJwtToken(uname string, jtype string, lifetime int64, secret string) (
 		lifeTime int64 = time.Now().Add(getTime * time.Minute).Unix()
 	)
 
-	if jtype == "admin" {
+	if jtype == "Admin" {
 		claim = JwtClaims{
 			uname,
 			true,

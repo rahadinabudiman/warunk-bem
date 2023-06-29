@@ -15,21 +15,21 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type loginUsecase struct {
+type authUsecase struct {
 	UserRepository domain.UserRepository
 	contextTimeout time.Duration
 	Config         *viper.Viper
 }
 
-func NewLoginUsecase(us domain.UserRepository, t time.Duration, config *viper.Viper) domain.LoginUsecase {
-	return &loginUsecase{
+func NewAuthUsecase(us domain.UserRepository, t time.Duration, config *viper.Viper) domain.AuthUsecase {
+	return &authUsecase{
 		UserRepository: us,
 		contextTimeout: t,
 		Config:         config,
 	}
 }
 
-func (u *loginUsecase) GetUser(c echo.Context, ctx context.Context, req *dtos.LoginUserRequest) (*dtos.LoginUserResponse, error) {
+func (u *authUsecase) LoginUser(c echo.Context, ctx context.Context, req *dtos.LoginUserRequest) (*dtos.LoginUserResponse, error) {
 	var res *dtos.LoginUserResponse
 	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
@@ -37,6 +37,10 @@ func (u *loginUsecase) GetUser(c echo.Context, ctx context.Context, req *dtos.Lo
 	user, err := u.UserRepository.FindUsername(ctx, req.Username)
 	if err != nil {
 		return nil, err
+	}
+
+	if !user.Verified {
+		return nil, errors.New("please verify your account first")
 	}
 
 	err = helpers.ComparePassword(req.Password, user.Password)
@@ -75,4 +79,13 @@ func (u *loginUsecase) GetUser(c echo.Context, ctx context.Context, req *dtos.Lo
 	}
 
 	return res, nil
+}
+
+func (u *authUsecase) LogoutUser(c echo.Context) (res *dtos.LogoutUserResponse, err error) {
+	err = middlewares.DeleteCookie(c)
+	if err != nil {
+		return nil, errors.New("cannot logout")
+	}
+
+	return res, err
 }

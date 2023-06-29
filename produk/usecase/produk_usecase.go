@@ -2,21 +2,26 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"time"
 	"warunk-bem/domain"
 	"warunk-bem/domain/dtos"
+	"warunk-bem/user/usecase/helpers"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type produkUsecase struct {
 	ProdukRepo     domain.ProdukRepository
+	UserRepo       domain.UserRepository
 	contextTimeout time.Duration
 }
 
-func NewProdukUsecase(ProdukRepo domain.ProdukRepository, contextTimeout time.Duration) domain.ProdukUsecase {
+func NewProdukUsecase(ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, contextTimeout time.Duration) domain.ProdukUsecase {
 	return &produkUsecase{
 		ProdukRepo:     ProdukRepo,
+		UserRepo:       UserRepo,
 		contextTimeout: contextTimeout,
 	}
 }
@@ -114,9 +119,24 @@ func (pu *produkUsecase) UpdateOne(c context.Context, req *dtos.ProdukUpdateRequ
 	return res, nil
 }
 
-func (pu *produkUsecase) DeleteOne(c context.Context, id string, req dtos.DeleteProdukRequest) (res dtos.ResponseMessage, err error) {
+func (pu *produkUsecase) DeleteOne(c context.Context, id string, idAdmin string, req dtos.DeleteProdukRequest) (res dtos.ResponseMessage, err error) {
 	ctx, cancel := context.WithTimeout(c, pu.contextTimeout)
 	defer cancel()
+
+	userAdmin, err := pu.UserRepo.FindOne(ctx, idAdmin)
+	if err != nil {
+		return res, err
+	}
+
+	err = helpers.ComparePassword(req.Password, userAdmin.Password)
+	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
+		return res, errors.New("password is incorrect")
+	}
+
+	err = pu.ProdukRepo.DeleteOne(ctx, id)
+	if err != nil {
+		return res, err
+	}
 
 	return res, nil
 }

@@ -32,5 +32,5 @@ type ProdukUsecase interface {
 	FindOne(ctx context.Context, id string) (res *dtos.ProdukDetailResponse, err error)
 	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]dtos.ProdukDetailResponse, int64, error)
 	UpdateOne(ctx context.Context, req *dtos.ProdukUpdateRequest, id string) (*dtos.ProdukDetailResponse, error)
-	DeleteOne(ctx context.Context, id string, req dtos.DeleteProdukRequest) (res dtos.ResponseMessage, err error)
+	DeleteOne(ctx context.Context, id string, idAdmin string, req dtos.DeleteProdukRequest) (res dtos.ResponseMessage, err error)
 }

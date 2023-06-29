@@ -39,3 +39,7 @@ type LoginUserResponse struct {
 	Username string `json:"username" validate:"required"`
 	Token    string `json:"token" form:"token"`
 }
+
+type LogoutUserResponse struct {
+	Message string `json:"message"`
+}

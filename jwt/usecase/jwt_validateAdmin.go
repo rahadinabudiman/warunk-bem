@@ -3,15 +3,14 @@ package usecase
 import (
 	"net/http"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
 
 // SetJwtAdmin Set Only JWT for For Admin
 func (h *JwtUsecase) SetJwtAdmin(g *echo.Group) {
-
-	secret := h.Config.GetString("jwt.secret")
+	secret := h.Config.GetString("SECRET_JWT")
 
 	// validate jwt token
 	g.Use(middleware.JWTWithConfig(middleware.JWTConfig{

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"time"
 	"warunk-bem/domain"
 
@@ -29,7 +30,7 @@ func (h *JwtUsecase) getOneUser(c context.Context, id string) (*domain.User, err
 
 	res, err := h.UserRepo.FindOne(ctx, id)
 	if err != nil {
-		return res, err
+		return res, errors.New("couldn't find user")
 	}
 
 	return res, nil

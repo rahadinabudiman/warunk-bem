@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"warunk-bem/domain/dtos"
 	"warunk-bem/utils"
 
 	"github.com/gin-gonic/gin"
@@ -34,10 +35,36 @@ func (m *GoMiddleware) JwtAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		err := utils.TokenValid(c)
 		if err != nil {
-			c.String(http.StatusUnauthorized, "Unauthorized")
+			c.JSON(
+				http.StatusUnauthorized,
+				dtos.NewResponseMessage(
+					http.StatusUnauthorized,
+					"Unauthorized",
+				),
+			)
 			c.Abort()
 			return
 		}
+		c.Next()
+	}
+}
+
+// JwtAuthMiddleware handles the JWT authentication middleware
+func (m *GoMiddleware) JwtAuthAdminMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		AdminId, err := utils.TokenAdminValid(c)
+		if err != nil {
+			c.JSON(
+				http.StatusUnauthorized,
+				dtos.NewResponseMessage(
+					http.StatusUnauthorized,
+					"Unauthorized",
+				),
+			)
+			c.Abort()
+			return
+		}
+		c.Set("adminID", AdminId)
 		c.Next()
 	}
 }

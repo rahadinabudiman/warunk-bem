@@ -19,19 +19,21 @@ type UserHandler struct {
 	UsrUsecase domain.UserUsecase
 }
 
-func NewUserHandler(router *gin.RouterGroup, uu domain.UserUsecase) {
+func NewUserHandler(router *gin.RouterGroup, protected *gin.RouterGroup, protectedAdmin *gin.RouterGroup, uu domain.UserUsecase) {
 	handler := &UserHandler{
 		UsrUsecase: uu,
 	}
 
 	// Main API
 	api := router.Group("/user")
+	protected = protected.Group("/user")
+	protectedAdmin = protectedAdmin.Group("/user")
 
 	api.POST("", handler.InsertOne)
-	api.GET("/:id", handler.FindOne)
-	api.GET("", handler.GetAll)
-	api.PUT("/:id", handler.UpdateOne)
-	api.DELETE("/:id", handler.DeleteOne)
+	protected.GET("/:id", handler.FindOne)
+	protectedAdmin.GET("", handler.GetAll)
+	protected.PUT("/:id", handler.UpdateOne)
+	protected.DELETE("/:id", handler.DeleteOne)
 }
 
 func isRequestValid(m *dtos.RegisterUserRequest) (bool, error) {
@@ -265,6 +267,30 @@ func (user *UserHandler) UpdateOne(c *gin.Context) {
 func (user *UserHandler) DeleteOne(c *gin.Context) {
 	id := c.Param("id")
 
+	idUser, err := middlewares.IsUser(c)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dtos.NewErrorResponse(
+				http.StatusBadRequest,
+				"Please login first before access to this",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+
+	if idUser != id {
+		c.JSON(
+			http.StatusForbidden,
+			dtos.NewResponseMessage(
+				http.StatusForbidden,
+				"Forbidden",
+			),
+		)
+		return
+	}
+
 	var req dtos.DeleteUserRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
@@ -283,7 +309,7 @@ func (user *UserHandler) DeleteOne(c *gin.Context) {
 		ctx = context.Background()
 	}
 
-	_, err := user.UsrUsecase.DeleteOne(ctx, id, req)
+	_, err = user.UsrUsecase.DeleteOne(ctx, id, req)
 	if err != nil {
 		c.JSON(
 			http.StatusInternalServerError,

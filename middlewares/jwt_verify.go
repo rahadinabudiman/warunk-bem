@@ -36,14 +36,10 @@ func IsUser(c *gin.Context) (string, error) {
 		return "", errors.New("Unauthorized")
 	}
 
-	if claims["is_admin"] != false {
-		return "", errors.New("Unauthorized")
-	}
-
 	// Extract the admin ID from the token's payload
-	id, ok := claims["name"].(string)
+	id, ok := claims["user_id"].(string)
 	if !ok {
-		return "", errors.New("failed to retrieve name from JWT token")
+		return "", errors.New("failed to retrieve user_id from JWT token")
 	}
 
 	return id, nil

@@ -7,11 +7,11 @@ import (
 	_authHttp "warunk-bem/auth/delivery/http"
 	_authUsecase "warunk-bem/auth/usecase"
 	"warunk-bem/author"
+	"warunk-bem/helpers"
 	"warunk-bem/middlewares"
 	_userHttp "warunk-bem/user/delivery/http"
 	_userRepo "warunk-bem/user/repository"
 	_userUcase "warunk-bem/user/usecase"
-	"warunk-bem/user/usecase/helpers"
 	_userAmountRepo "warunk-bem/user_amount/repository"
 
 	"github.com/gin-contrib/cors"
@@ -52,9 +52,11 @@ func main() {
 	// Main Routes API
 	api := r.Group("/api/v1")
 	protected := r.Group("/api/v1")
+	protectedAdmin := r.Group("/api/v1")
+	protectedAdmin.Use(middlewares.JwtAuthAdminMiddleware())
 	protected.Use(middlewares.JwtAuthMiddleware())
 
-	_userHttp.NewUserHandler(api, usrUsecase)
+	_userHttp.NewUserHandler(api, protected, protectedAdmin, usrUsecase)
 
 	loginUsecase := _authUsecase.NewAuthUsecase(userRepo, timeoutContext, author.App.Config)
 	_authHttp.NewAuthHandler(api, protected, loginUsecase, author.App.Config)

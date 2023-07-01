@@ -6,8 +6,8 @@ import (
 	"time"
 	"warunk-bem/domain"
 	"warunk-bem/domain/dtos"
+	"warunk-bem/helpers"
 	"warunk-bem/middlewares"
-	"warunk-bem/user/usecase/helpers"
 	"warunk-bem/utils"
 
 	"github.com/gin-gonic/gin"
@@ -48,9 +48,9 @@ func (u *authUsecase) LoginUser(c *gin.Context, ctx context.Context, req *dtos.L
 		return nil, errors.New("username or password is incorrect")
 	}
 
-	// Role := user.Role
+	Role := user.Role
 
-	token, err := utils.GenerateToken(user.ID.Hex())
+	token, err := utils.GenerateToken(user.ID.Hex(), Role)
 	if err != nil {
 		return res, errors.New("something went wrong")
 	}

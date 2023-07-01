@@ -7,8 +7,8 @@ import (
 	"warunk-bem/domain/dtos"
 	"warunk-bem/user/usecase/helpers"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/labstack/echo"
 	"github.com/spf13/viper"
 )
 
@@ -17,14 +17,14 @@ type AuthHandler struct {
 	Config      *viper.Viper
 }
 
-func NewAuthHandler(api *echo.Group, generalJwt *echo.Group, lu domain.AuthUsecase, config *viper.Viper) {
+func NewAuthHandler(api *gin.RouterGroup, protected *gin.RouterGroup, lu domain.AuthUsecase, config *viper.Viper) {
 	handler := &AuthHandler{
 		AuthUsecase: lu,
 		Config:      config,
 	}
 
 	api.POST("/login", handler.LoginUser)
-	generalJwt.GET("/logout", handler.LogoutUser)
+	protected.GET("/logout", handler.LogoutUser)
 }
 
 func isRequestValid(m *domain.Login) (bool, error) {
@@ -37,29 +37,38 @@ func isRequestValid(m *domain.Login) (bool, error) {
 	return true, nil
 }
 
-func (delivery *AuthHandler) LoginUser(c echo.Context) error {
+func (delivery *AuthHandler) LoginUser(c *gin.Context) {
 	var (
 		err          error
 		loginPayload domain.Login
 	)
 
-	err = c.Bind(&loginPayload)
+	err = c.ShouldBindJSON(&loginPayload)
 	if err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+		c.JSON(
+			http.StatusUnprocessableEntity,
+			dtos.NewErrorResponse(
+				http.StatusUnprocessableEntity,
+				"Field Cannot Be Empty",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
 	}
 
 	if ok, err := isRequestValid(&loginPayload); !ok {
-		return c.JSON(
+		c.JSON(
 			http.StatusBadRequest,
 			dtos.NewErrorResponse(
 				http.StatusBadRequest,
-				"username or password cannot be blank",
-				err.Error(),
+				"Bad Request",
+				dtos.GetErrorData(err),
 			),
 		)
+		return
 	}
 
-	ctx := c.Request().Context()
+	ctx := c.Request.Context()
 	if ctx == nil {
 		ctx = context.Background()
 	}
@@ -71,17 +80,18 @@ func (delivery *AuthHandler) LoginUser(c echo.Context) error {
 
 	res, err := delivery.AuthUsecase.LoginUser(c, ctx, &loginRequest)
 	if err != nil {
-		return c.JSON(
+		c.JSON(
 			http.StatusUnauthorized,
 			dtos.NewErrorResponse(
 				http.StatusUnauthorized,
-				"cannot login",
+				"Cannot login",
 				err.Error(),
 			),
 		)
+		return
 	}
 
-	return c.JSON(
+	c.JSON(
 		http.StatusOK,
 		dtos.NewResponse(
 			http.StatusOK,
@@ -89,23 +99,23 @@ func (delivery *AuthHandler) LoginUser(c echo.Context) error {
 			res,
 		),
 	)
-
 }
 
-func (delivery *AuthHandler) LogoutUser(c echo.Context) error {
+func (delivery *AuthHandler) LogoutUser(c *gin.Context) {
 	_, err := delivery.AuthUsecase.LogoutUser(c)
 	if err != nil {
-		return c.JSON(
+		c.JSON(
 			http.StatusBadRequest,
 			dtos.NewErrorResponse(
 				http.StatusBadRequest,
-				"cannot logout",
+				"Cannot logout",
 				err.Error(),
 			),
 		)
+		return
 	}
 
-	return c.JSON(
+	c.JSON(
 		http.StatusOK,
 		dtos.NewResponseMessage(
 			http.StatusOK,

@@ -4,39 +4,61 @@ import (
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/gin-gonic/gin"
 )
 
-// SetJwtAdmin Set Only JWT for For Admin
-func (h *JwtUsecase) SetJwtAdmin(g *echo.Group) {
+// SetJwtAdmin sets JWT middleware for admin routes
+func (h *JwtUsecase) SetJwtAdmin(g *gin.RouterGroup) {
 	secret := h.Config.GetString("SECRET_JWT")
 
-	// validate jwt token
-	g.Use(middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningMethod: "HS512",
-		SigningKey:    []byte(secret),
-	}))
+	// Validate JWT token
+	g.Use(func(c *gin.Context) {
+		tokenString := c.GetHeader("Authorization")
 
-	// validate payload related with admin type of token
-	g.Use(h.validateJwtAdmin)
-}
-
-// validateJwtAdmin
-// Middleware for validating access to Admin only resources
-func (h *JwtUsecase) validateJwtAdmin(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-
-		user := c.Get("user")
-		token := user.(*jwt.Token)
-		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			if claims["is_admin"] == true {
-				return next(c)
-			} else {
-				return echo.NewHTTPError(http.StatusForbidden, "Forbidden")
+		// Verify token
+		_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			// Validate signing method and secret
+			if token.Method != jwt.SigningMethodHS512 {
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid signing method"})
+				return nil, nil
 			}
+			return []byte(secret), nil
+		})
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			return
 		}
 
-		return echo.NewHTTPError(http.StatusForbidden, "Invalid Token")
+		// Call the validateJwtAdmin function
+		validateJwtAdmin(c)
+	})
+}
+
+// validateJwtAdmin is a middleware for validating access to admin-only resources
+func validateJwtAdmin(c *gin.Context) {
+	tokenInterface, exists := c.Get("user")
+	if !exists {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+		return
 	}
+
+	token, ok := tokenInterface.(*jwt.Token)
+	if !ok || !token.Valid {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+		return
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+		return
+	}
+
+	isAdmin, ok := claims["is_admin"].(bool)
+	if !ok || !isAdmin {
+		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+		return
+	}
+
+	c.Next()
 }

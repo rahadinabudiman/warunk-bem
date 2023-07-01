@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"warunk-bem/domain"
 	"warunk-bem/domain/dtos"
-	"warunk-bem/middlewares"
+	"warunk-bem/user/delivery/http/middlewares"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/labstack/echo"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -19,19 +19,19 @@ type UserHandler struct {
 	UsrUsecase domain.UserUsecase
 }
 
-func NewUserHandler(router *gin.RouterGroup, uu domain.UserUsecase) {
+func NewUserHandler(api *echo.Group, userJwt *echo.Group, uu domain.UserUsecase) {
 	handler := &UserHandler{
 		UsrUsecase: uu,
 	}
 
 	// Main API
-	api := router.Group("/user")
+	userAuth := userJwt.Group("/user")
 
 	api.POST("", handler.InsertOne)
-	api.GET("/:id", handler.FindOne)
-	api.GET("", handler.GetAll)
-	api.PUT("/:id", handler.UpdateOne)
-	api.DELETE("/:id", handler.DeleteOne)
+	userAuth.GET("/:id", handler.FindOne)
+	userAuth.GET("", handler.GetAll)
+	userAuth.PUT("/:id", handler.UpdateOne)
+	userAuth.DELETE("/:id", handler.DeleteOne)
 }
 
 func isRequestValid(m *dtos.RegisterUserRequest) (bool, error) {
@@ -43,15 +43,15 @@ func isRequestValid(m *dtos.RegisterUserRequest) (bool, error) {
 	return true, nil
 }
 
-func (user *UserHandler) InsertOne(c *gin.Context) {
+func (user *UserHandler) InsertOne(c echo.Context) error {
 	var (
 		usr dtos.RegisterUserRequest
 		err error
 	)
 
-	err = c.ShouldBindJSON(&usr)
+	err = c.Bind(&usr)
 	if err != nil {
-		c.JSON(
+		return c.JSON(
 			http.StatusUnprocessableEntity,
 			dtos.NewErrorResponse(
 				http.StatusUnprocessableEntity,
@@ -59,12 +59,11 @@ func (user *UserHandler) InsertOne(c *gin.Context) {
 				dtos.GetErrorData(err),
 			),
 		)
-		return
 	}
 
 	var ok bool
 	if ok, err = isRequestValid(&usr); !ok {
-		c.JSON(
+		return c.JSON(
 			http.StatusBadRequest,
 			dtos.NewErrorResponse(
 				http.StatusBadRequest,
@@ -72,17 +71,16 @@ func (user *UserHandler) InsertOne(c *gin.Context) {
 				dtos.GetErrorData(err),
 			),
 		)
-		return
 	}
 
-	ctx := c.Request.Context()
+	ctx := c.Request().Context()
 	if ctx == nil {
 		ctx = context.Background()
 	}
 
 	result, err := user.UsrUsecase.InsertOne(ctx, &usr)
 	if err != nil {
-		c.JSON(
+		return c.JSON(
 			http.StatusInternalServerError,
 			dtos.NewErrorResponse(
 				http.StatusInternalServerError,
@@ -90,10 +88,9 @@ func (user *UserHandler) InsertOne(c *gin.Context) {
 				dtos.GetErrorData(err),
 			),
 		)
-		return
 	}
 
-	c.JSON(
+	return c.JSON(
 		http.StatusOK,
 		dtos.NewResponse(
 			http.StatusOK,
@@ -103,10 +100,10 @@ func (user *UserHandler) InsertOne(c *gin.Context) {
 	)
 }
 
-func (user *UserHandler) FindOne(c *gin.Context) {
+func (user *UserHandler) FindOne(c echo.Context) error {
 	dataUser, err := middlewares.IsUser(c)
 	if err != nil {
-		c.JSON(
+		return c.JSON(
 			http.StatusBadRequest,
 			dtos.NewErrorResponse(
 				http.StatusBadRequest,
@@ -114,29 +111,27 @@ func (user *UserHandler) FindOne(c *gin.Context) {
 				dtos.GetErrorData(err),
 			),
 		)
-		return
 	}
 	id := c.Param("id")
 
 	if dataUser != id {
-		c.JSON(
+		return c.JSON(
 			http.StatusForbidden,
 			dtos.NewResponseMessage(
 				http.StatusForbidden,
 				"Forbidden",
 			),
 		)
-		return
 	}
 
-	ctx := c.Request.Context()
+	ctx := c.Request().Context()
 	if ctx == nil {
 		ctx = context.Background()
 	}
 
 	result, err := user.UsrUsecase.FindOne(ctx, id)
 	if err != nil {
-		c.JSON(
+		return c.JSON(
 			http.StatusInternalServerError,
 			dtos.NewErrorResponse(
 				http.StatusInternalServerError,
@@ -144,10 +139,9 @@ func (user *UserHandler) FindOne(c *gin.Context) {
 				dtos.GetErrorData(err),
 			),
 		)
-		return
 	}
 
-	c.JSON(
+	return c.JSON(
 		http.StatusOK,
 		dtos.NewResponse(
 			http.StatusOK,
@@ -157,32 +151,32 @@ func (user *UserHandler) FindOne(c *gin.Context) {
 	)
 }
 
-func (user *UserHandler) GetAll(c *gin.Context) {
+func (user *UserHandler) GetAll(c echo.Context) error {
 	var (
 		res   []dtos.UserProfileResponse
 		count int64
 	)
 
-	rp, err := strconv.ParseInt(c.Query("rp"), 10, 64)
+	rp, err := strconv.ParseInt(c.QueryParam("rp"), 10, 64)
 	if err != nil {
 		rp = 25
 	}
 
-	page, err := strconv.ParseInt(c.Query("p"), 10, 64)
+	page, err := strconv.ParseInt(c.QueryParam("p"), 10, 64)
 	if err != nil {
 		page = 1
 	}
 
-	filters := bson.D{{Key: "name", Value: primitive.Regex{Pattern: ".*" + c.Query("name") + ".*", Options: "i"}}}
+	filters := bson.D{{Key: "name", Value: primitive.Regex{Pattern: ".*" + c.QueryParam("name") + ".*", Options: "i"}}}
 
-	ctx := c.Request.Context()
+	ctx := c.Request().Context()
 	if ctx == nil {
 		ctx = context.Background()
 	}
 
 	res, count, err = user.UsrUsecase.GetAllWithPage(ctx, rp, page, filters, nil)
 	if err != nil {
-		c.JSON(
+		return c.JSON(
 			http.StatusInternalServerError,
 			dtos.NewErrorResponse(
 				http.StatusInternalServerError,
@@ -190,7 +184,6 @@ func (user *UserHandler) GetAll(c *gin.Context) {
 				dtos.GetErrorData(err),
 			),
 		)
-		return
 	}
 
 	result := dtos.GetAllUserResponse{
@@ -203,7 +196,7 @@ func (user *UserHandler) GetAll(c *gin.Context) {
 		User:        res,
 	}
 
-	c.JSON(
+	return c.JSON(
 		http.StatusOK,
 		dtos.NewResponse(
 			http.StatusOK,
@@ -213,7 +206,7 @@ func (user *UserHandler) GetAll(c *gin.Context) {
 	)
 }
 
-func (user *UserHandler) UpdateOne(c *gin.Context) {
+func (user *UserHandler) UpdateOne(c echo.Context) error {
 	id := c.Param("id")
 
 	var (
@@ -221,9 +214,9 @@ func (user *UserHandler) UpdateOne(c *gin.Context) {
 		err error
 	)
 
-	err = c.ShouldBindJSON(&usr)
+	err = c.Bind(&usr)
 	if err != nil {
-		c.JSON(
+		return c.JSON(
 			http.StatusUnprocessableEntity,
 			dtos.NewErrorResponse(
 				http.StatusUnprocessableEntity,
@@ -231,17 +224,16 @@ func (user *UserHandler) UpdateOne(c *gin.Context) {
 				dtos.GetErrorData(err),
 			),
 		)
-		return
 	}
 
-	ctx := c.Request.Context()
+	ctx := c.Request().Context()
 	if ctx == nil {
 		ctx = context.Background()
 	}
 
 	result, err := user.UsrUsecase.UpdateOne(ctx, &usr, id)
 	if err != nil {
-		c.JSON(
+		return c.JSON(
 			http.StatusInternalServerError,
 			dtos.NewErrorResponse(
 				http.StatusInternalServerError,
@@ -249,10 +241,9 @@ func (user *UserHandler) UpdateOne(c *gin.Context) {
 				dtos.GetErrorData(err),
 			),
 		)
-		return
 	}
 
-	c.JSON(
+	return c.JSON(
 		http.StatusOK,
 		dtos.NewResponse(
 			http.StatusOK,
@@ -262,12 +253,13 @@ func (user *UserHandler) UpdateOne(c *gin.Context) {
 	)
 }
 
-func (user *UserHandler) DeleteOne(c *gin.Context) {
+func (user *UserHandler) DeleteOne(c echo.Context) error {
 	id := c.Param("id")
 
-	var req dtos.DeleteUserRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(
+	req := dtos.DeleteUserRequest{}
+	c.Bind(&req)
+	if err := c.Validate(req); err != nil {
+		return c.JSON(
 			http.StatusUnprocessableEntity,
 			dtos.NewErrorResponse(
 				http.StatusUnprocessableEntity,
@@ -275,17 +267,16 @@ func (user *UserHandler) DeleteOne(c *gin.Context) {
 				dtos.GetErrorData(err),
 			),
 		)
-		return
 	}
 
-	ctx := c.Request.Context()
+	ctx := c.Request().Context()
 	if ctx == nil {
 		ctx = context.Background()
 	}
 
 	_, err := user.UsrUsecase.DeleteOne(ctx, id, req)
 	if err != nil {
-		c.JSON(
+		return c.JSON(
 			http.StatusInternalServerError,
 			dtos.NewErrorResponse(
 				http.StatusInternalServerError,
@@ -293,10 +284,9 @@ func (user *UserHandler) DeleteOne(c *gin.Context) {
 				dtos.GetErrorData(err),
 			),
 		)
-		return
 	}
 
-	c.JSON(
+	return c.JSON(
 		http.StatusOK,
 		dtos.NewResponseMessage(
 			http.StatusOK,

@@ -7,27 +7,40 @@ import (
 	_authHttp "warunk-bem/auth/delivery/http"
 	_authUsecase "warunk-bem/auth/usecase"
 	"warunk-bem/author"
-	_jwt "warunk-bem/jwt/usecase"
+	"warunk-bem/middlewares"
 	_userHttp "warunk-bem/user/delivery/http"
-	_userHttpMiddlewares "warunk-bem/user/delivery/http/middlewares"
 	_userRepo "warunk-bem/user/repository"
 	_userUcase "warunk-bem/user/usecase"
 	"warunk-bem/user/usecase/helpers"
 	_userAmountRepo "warunk-bem/user_amount/repository"
 
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/labstack/echo"
 )
 
 func main() {
-	e := echo.New()
-	middlewares := _userHttpMiddlewares.InitMiddleware()
-	middlewares.Log(e)
-	e.Use(middlewares.AllowCORS)
-	e.Use(middlewares.CORS)
+	r := gin.Default()
+
+	middlewares := middlewares.InitMiddleware()
+	middlewares.Log()
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"*"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "https://keyzex.com"
+		},
+		MaxAge: 12 * time.Hour,
+	}))
 
 	cv := &helpers.CustomValidator{Validators: validator.New()}
-	e.Validator = cv
+	r.Use(func(c *gin.Context) {
+		c.Set("validator", cv)
+		c.Next()
+	})
 
 	timeoutContext := time.Duration(author.App.Config.GetInt("CONTEXT_TIMEOUT")) * time.Second
 	database := author.App.Mongo.Database(author.App.Config.GetString("MONGODB_NAME"))
@@ -37,21 +50,15 @@ func main() {
 	usrUsecase := _userUcase.NewUserUsecase(userRepo, userAmountRepo, timeoutContext)
 
 	// Main Routes API
-	api := e.Group("/api/v1")
+	api := r.Group("/api/v1")
+	protected := r.Group("/api/v1")
+	protected.Use(middlewares.JwtAuthMiddleware())
 
-	jwt := _jwt.NewJwtUsecase(userRepo, timeoutContext, author.App.Config)
-	userJwt := api.Group("")
-	jwt.SetJwtUser(userJwt)
-	adminJwt := api.Group("")
-	jwt.SetJwtUser(adminJwt)
-	generalJwt := api.Group("")
-	jwt.SetJwtUser(generalJwt)
-
-	_userHttp.NewUserHandler(api, userJwt, usrUsecase)
+	_userHttp.NewUserHandler(api, usrUsecase)
 
 	loginUsecase := _authUsecase.NewAuthUsecase(userRepo, timeoutContext, author.App.Config)
-	_authHttp.NewAuthHandler(api, generalJwt, loginUsecase, author.App.Config)
+	_authHttp.NewAuthHandler(api, protected, loginUsecase, author.App.Config)
 
 	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))
-	log.Fatal(e.Start(appPort))
+	log.Fatal(r.Run(appPort))
 }

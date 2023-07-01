@@ -6,19 +6,19 @@ import (
 	"warunk-bem/author"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo"
+	"github.com/gin-gonic/gin"
 )
 
-func IsUser(c echo.Context) (string, error) {
-	token := c.Request().Header.Get("Authorization")
+func IsUser(c *gin.Context) (string, error) {
+	token := c.GetHeader("Authorization")
 	if token == "" {
-		return "", echo.NewHTTPError(400, "Missing Token")
+		return "", errors.New("missing Token")
 	}
 
 	// Extract the token from the "Bearer <token>" format
 	tokenParts := strings.Split(token, " ")
 	if len(tokenParts) != 2 || strings.ToLower(tokenParts[0]) != "bearer" {
-		return "", echo.NewHTTPError(400, "Invalid Token Format")
+		return "", errors.New("invalid Token Format")
 	}
 
 	// Parse and validate the JWT token
@@ -28,16 +28,16 @@ func IsUser(c echo.Context) (string, error) {
 		return []byte(author.App.Config.GetString("SECRET_JWT")), nil
 	})
 	if err != nil {
-		return "", echo.NewHTTPError(400, "Invalid Token")
+		return "", errors.New("invalid Token")
 	}
 
 	claims, ok := jwtToken.Claims.(jwt.MapClaims)
 	if !ok || !jwtToken.Valid {
-		return "", echo.NewHTTPError(401, "Unauthorized")
+		return "", errors.New("Unauthorized")
 	}
 
 	if claims["is_admin"] != false {
-		return "", echo.NewHTTPError(401, "Unauthorized")
+		return "", errors.New("Unauthorized")
 	}
 
 	// Extract the admin ID from the token's payload

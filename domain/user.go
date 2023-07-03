@@ -9,15 +9,17 @@ import (
 )
 
 type User struct {
-	ID        primitive.ObjectID `bson:"_id" json:"id"`
-	CreatedAt time.Time          `bson:"created_at" json:"created_at"`
-	UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
-	Name      string             `bson:"name" json:"name" validate:"required"`
-	Email     string             `bson:"email" json:"email" validate:"required"`
-	Username  string             `bson:"username" json:"username" validate:"required"`
-	Password  string             `bson:"password" json:"password" validate:"required"`
-	Verified  bool               `bson:"verified" json:"verified"`
-	Role      string             `bson:"role" json:"role" validate:"required"`
+	ID               primitive.ObjectID `bson:"_id" json:"id"`
+	CreatedAt        time.Time          `bson:"created_at" json:"created_at"`
+	UpdatedAt        time.Time          `bson:"updated_at" json:"updated_at"`
+	Name             string             `bson:"name" json:"name" validate:"required"`
+	Email            string             `bson:"email" json:"email" validate:"required"`
+	Username         string             `bson:"username" json:"username" validate:"required"`
+	Password         string             `bson:"password" json:"password" validate:"required"`
+	Verified         bool               `bson:"verified" json:"verified"`
+	LoginVerif       int                `bson:"loginverif" json:"loginverif"`
+	VerificationCode int                `bson:"verification" json:"verification"`
+	Role             string             `bson:"role" json:"role" validate:"required"`
 }
 
 type UserRepository interface {
@@ -31,7 +33,7 @@ type UserRepository interface {
 	DeleteOne(ctx context.Context, id string) error
 }
 type UserUsecase interface {
-	InsertOne(ctx context.Context, req *dtos.RegisterUserRequest) (*dtos.RegisterUserResponse, error)
+	InsertOne(ctx context.Context, req *dtos.RegisterUserRequest) (*dtos.RegisterUserResponseVerification, error)
 	FindOne(ctx context.Context, id string) (res *dtos.UserProfileResponse, err error)
 	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]dtos.UserProfileResponse, int64, error)
 	UpdateOne(ctx context.Context, user *dtos.UpdateUserRequest, id string) (*dtos.UpdateUserResponse, error)

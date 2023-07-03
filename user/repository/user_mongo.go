@@ -145,7 +145,7 @@ func (m *userRepository) GetByCredential(ctx context.Context, req *dtos.LoginUse
 	)
 
 	credential := bson.M{
-		"username": req.Username,
+		"email":    req.Email,
 		"password": req.Password,
 	}
 

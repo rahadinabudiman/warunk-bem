@@ -8,6 +8,11 @@ type RegisterUserResponse struct {
 	Email    string `json:"email" example:"r4ha@proton.me"`
 }
 
+type RegisterUserResponseVerification struct {
+	Email   string `json:"email" example:"r4ha@proton.me"`
+	Message string `json:"message" form:"message"`
+}
+
 type RegisterUserAmountResponse struct {
 	UserID primitive.ObjectID `bson:"user_id" json:"user_id"`
 	Amount float64            `bson:"amount" json:"amount"`

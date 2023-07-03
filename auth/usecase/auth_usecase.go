@@ -3,14 +3,14 @@ package usecase
 import (
 	"context"
 	"errors"
-	"strconv"
 	"time"
-	"warunk-bem/auth/middlewares"
 	"warunk-bem/domain"
 	"warunk-bem/domain/dtos"
-	"warunk-bem/user/usecase/helpers"
+	"warunk-bem/helpers"
+	"warunk-bem/middlewares"
+	"warunk-bem/utils"
 
-	"github.com/labstack/echo"
+	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -29,12 +29,12 @@ func NewAuthUsecase(us domain.UserRepository, t time.Duration, config *viper.Vip
 	}
 }
 
-func (u *authUsecase) LoginUser(c echo.Context, ctx context.Context, req *dtos.LoginUserRequest) (*dtos.LoginUserResponse, error) {
+func (u *authUsecase) LoginUser(c *gin.Context, ctx context.Context, req *dtos.LoginUserRequest) (*dtos.LoginUserResponse, error) {
 	var res *dtos.LoginUserResponse
 	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
 
-	user, err := u.UserRepository.FindUsername(ctx, req.Username)
+	user, err := u.UserRepository.FindEmail(ctx, req.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -48,21 +48,15 @@ func (u *authUsecase) LoginUser(c echo.Context, ctx context.Context, req *dtos.L
 		return nil, errors.New("username or password is incorrect")
 	}
 
-	lifetime, err := strconv.ParseInt(u.Config.GetString("LIFETIME"), 10, 64)
-	if err != nil {
-		lifetime = 60
-	}
-
 	Role := user.Role
 
-	secret := u.Config.GetString("SECRET_JWT")
-	token, err := middlewares.CreateJwtToken(user.ID.Hex(), Role, lifetime, secret)
+	token, err := utils.GenerateToken(user.ID.Hex(), Role)
 	if err != nil {
 		return res, errors.New("something went wrong")
 	}
 
 	req = &dtos.LoginUserRequest{
-		Username: req.Username,
+		Email:    req.Email,
 		Password: user.Password,
 	}
 
@@ -81,7 +75,7 @@ func (u *authUsecase) LoginUser(c echo.Context, ctx context.Context, req *dtos.L
 	return res, nil
 }
 
-func (u *authUsecase) LogoutUser(c echo.Context) (res *dtos.LogoutUserResponse, err error) {
+func (u *authUsecase) LogoutUser(c *gin.Context) (res *dtos.LogoutUserResponse, err error) {
 	err = middlewares.DeleteCookie(c)
 	if err != nil {
 		return nil, errors.New("cannot logout")

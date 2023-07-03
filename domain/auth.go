@@ -4,15 +4,15 @@ import (
 	"context"
 	"warunk-bem/domain/dtos"
 
-	"github.com/labstack/echo"
+	"github.com/gin-gonic/gin"
 )
 
 type Login struct {
-	Username string `json:"username" validate:"required"`
+	Email    string `json:"email" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }
 
 type AuthUsecase interface {
-	LoginUser(c echo.Context, ctx context.Context, req *dtos.LoginUserRequest) (*dtos.LoginUserResponse, error)
-	LogoutUser(c echo.Context) (res *dtos.LogoutUserResponse, err error)
+	LoginUser(c *gin.Context, ctx context.Context, req *dtos.LoginUserRequest) (*dtos.LoginUserResponse, error)
+	LogoutUser(c *gin.Context) (res *dtos.LogoutUserResponse, err error)
 }

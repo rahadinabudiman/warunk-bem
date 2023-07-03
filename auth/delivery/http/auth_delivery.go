@@ -74,7 +74,7 @@ func (delivery *AuthHandler) LoginUser(c *gin.Context) {
 	}
 
 	loginRequest := dtos.LoginUserRequest{
-		Username: loginPayload.Username,
+		Email:    loginPayload.Email,
 		Password: loginPayload.Password,
 	}
 

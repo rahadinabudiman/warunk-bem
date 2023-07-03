@@ -34,7 +34,7 @@ func (u *authUsecase) LoginUser(c *gin.Context, ctx context.Context, req *dtos.L
 	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
 
-	user, err := u.UserRepository.FindUsername(ctx, req.Username)
+	user, err := u.UserRepository.FindEmail(ctx, req.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (u *authUsecase) LoginUser(c *gin.Context, ctx context.Context, req *dtos.L
 	}
 
 	req = &dtos.LoginUserRequest{
-		Username: req.Username,
+		Email:    req.Email,
 		Password: user.Password,
 	}
 

@@ -7,9 +7,13 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/validator/v10 v10.14.1
+	github.com/k3a/html2text v1.2.1
 	github.com/labstack/echo v3.3.10+incompatible
 	go.mongodb.org/mongo-driver v1.12.0
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 )
+
+require gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 
 require (
 	github.com/bytedance/sonic v1.9.2 // indirect

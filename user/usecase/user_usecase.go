@@ -3,11 +3,13 @@ package usecase
 import (
 	"context"
 	"errors"
+	"strconv"
 	"strings"
 	"time"
 	"warunk-bem/domain"
 	"warunk-bem/domain/dtos"
 	"warunk-bem/helpers"
+	"warunk-bem/utils"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
@@ -27,8 +29,8 @@ func NewUserUsecase(u domain.UserRepository, ua domain.UserAmountRepository, to 
 	}
 }
 
-func (u *userUsecase) InsertOne(c context.Context, req *dtos.RegisterUserRequest) (*dtos.RegisterUserResponse, error) {
-	var res *dtos.RegisterUserResponse
+func (u *userUsecase) InsertOne(c context.Context, req *dtos.RegisterUserRequest) (*dtos.RegisterUserResponseVerification, error) {
+	var res *dtos.RegisterUserResponseVerification
 
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
@@ -62,19 +64,27 @@ func (u *userUsecase) InsertOne(c context.Context, req *dtos.RegisterUserRequest
 		return res, err
 	}
 
+	otp := helpers.GenerateRandomOTP(6)
+	NewOTP, err := strconv.Atoi(otp)
+	if err != nil {
+		return res, errors.New("failed to Generate OTP")
+	}
+	VerificationCode := NewOTP
+
 	req.Password = passwordHash
 	req.Verified = false
 
 	CreateUser := &domain.User{
-		ID:        req.ID,
-		CreatedAt: req.CreatedAt,
-		UpdatedAt: req.UpdatedAt,
-		Name:      req.Name,
-		Email:     req.Email,
-		Username:  req.Username,
-		Password:  req.Password,
-		Verified:  req.Verified,
-		Role:      req.Role,
+		ID:               req.ID,
+		CreatedAt:        req.CreatedAt,
+		UpdatedAt:        req.UpdatedAt,
+		Name:             req.Name,
+		Email:            req.Email,
+		Username:         req.Username,
+		Password:         req.Password,
+		Verified:         req.Verified,
+		VerificationCode: VerificationCode,
+		Role:             req.Role,
 	}
 
 	createdUser, err := u.userRepo.InsertOne(ctx, CreateUser)
@@ -95,10 +105,17 @@ func (u *userUsecase) InsertOne(c context.Context, req *dtos.RegisterUserRequest
 		return res, err
 	}
 
-	res = &dtos.RegisterUserResponse{
-		Name:     createdUser.Name,
-		Email:    createdUser.Email,
-		Username: createdUser.Username,
+	emailData := utils.EmailData{
+		Code:      NewOTP,
+		FirstName: CreateUser.Name,
+		Subject:   "Your Verification Code Email",
+	}
+
+	utils.SendEmail(CreateUser, &emailData)
+
+	res = &dtos.RegisterUserResponseVerification{
+		Email:   CreateUser.Email,
+		Message: "Verification Code has been sent to your email",
 	}
 
 	return res, nil

@@ -111,7 +111,6 @@ func (cp *ProdukHandler) InsertOne(c *gin.Context) {
 	price, _ := strconv.Atoi(c.PostForm("price"))
 	stock, _ := strconv.Atoi(c.PostForm("stock"))
 	category := c.PostForm("category")
-	image := c.PostForm("image")
 
 	req = dtos.InsertProdukRequest{
 		Slug:     name,
@@ -120,34 +119,33 @@ func (cp *ProdukHandler) InsertOne(c *gin.Context) {
 		Price:    int64(price),
 		Stock:    int64(stock),
 		Category: category,
-		Image:    image,
 	}
 
-	// err = c.ShouldBind(&req)
-	// if err != nil {
-	// 	c.JSON(
-	// 		http.StatusUnprocessableEntity,
-	// 		dtos.NewErrorResponse(
-	// 			http.StatusUnprocessableEntity,
-	// 			"Failed to bind Produk",
-	// 			dtos.GetErrorData(err),
-	// 		),
-	// 	)
-	// 	return
-	// }
+	err = c.ShouldBind(&req)
+	if err != nil {
+		c.JSON(
+			http.StatusUnprocessableEntity,
+			dtos.NewErrorResponse(
+				http.StatusUnprocessableEntity,
+				"Failed to bind Produk",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
 
-	// var ok bool
-	// if ok, err = isRequestValid(&req); !ok {
-	// 	c.JSON(
-	// 		http.StatusBadRequest,
-	// 		dtos.NewErrorResponse(
-	// 			http.StatusBadRequest,
-	// 			"Bad Request",
-	// 			dtos.GetErrorData(err),
-	// 		),
-	// 	)
-	// 	return
-	// }
+	var ok bool
+	if ok, err = isRequestValid(&req); !ok {
+		c.JSON(
+			http.StatusBadRequest,
+			dtos.NewErrorResponse(
+				http.StatusBadRequest,
+				"Bad Request",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
 
 	ctx := c.Request.Context()
 	if ctx == nil {
@@ -206,9 +204,9 @@ func (cp *ProdukHandler) InsertOne(c *gin.Context) {
 		return
 	}
 
-	req.Image = uploadUrl
+	req.Image = file
 
-	result, err := cp.ProdukUsecase.InsertOne(ctx, &req)
+	result, err := cp.ProdukUsecase.InsertOne(ctx, &req, uploadUrl)
 	if err != nil {
 		c.JSON(
 			http.StatusBadRequest,

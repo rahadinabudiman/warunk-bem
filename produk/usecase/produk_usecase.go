@@ -26,7 +26,7 @@ func NewProdukUsecase(ProdukRepo domain.ProdukRepository, UserRepo domain.UserRe
 	}
 }
 
-func (pu *produkUsecase) InsertOne(c context.Context, req *dtos.InsertProdukRequest) (*dtos.InsertProdukResponse, error) {
+func (pu *produkUsecase) InsertOne(c context.Context, req *dtos.InsertProdukRequest, url string) (*dtos.InsertProdukResponse, error) {
 	var res *dtos.InsertProdukResponse
 
 	ctx, cancel := context.WithTimeout(c, pu.contextTimeout)
@@ -37,6 +37,7 @@ func (pu *produkUsecase) InsertOne(c context.Context, req *dtos.InsertProdukRequ
 	req.UpdatedAt = time.Now()
 
 	slug := helpers.CreateSlug(req.Name)
+	imageUrl := url
 
 	CreateProduk := &domain.Produk{
 		ID:        req.ID,
@@ -48,7 +49,7 @@ func (pu *produkUsecase) InsertOne(c context.Context, req *dtos.InsertProdukRequ
 		Price:     req.Price,
 		Stock:     req.Stock,
 		Category:  req.Category,
-		Image:     req.Image,
+		Image:     imageUrl,
 	}
 
 	createdProduk, err := pu.ProdukRepo.InsertOne(ctx, CreateProduk)

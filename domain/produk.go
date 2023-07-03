@@ -12,11 +12,13 @@ type Produk struct {
 	ID        primitive.ObjectID `bson:"_id" json:"id"`
 	CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
+	Slug      string             `bson:"slug" json:"slug"`
 	Name      string             `bson:"name" json:"name"`
 	Detail    string             `bson:"detail" json:"detail"`
 	Price     int64              `bson:"price" json:"price"`
 	Stock     int64              `bson:"stock" json:"stock"`
 	Category  string             `bson:"category" json:"category"`
+	Image     string             `bson:"image" json:"image" form:"image"`
 }
 
 type ProdukRepository interface {

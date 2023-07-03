@@ -9,6 +9,9 @@ import (
 	"warunk-bem/author"
 	"warunk-bem/helpers"
 	"warunk-bem/middlewares"
+	_produkHttp "warunk-bem/produk/delivery/http"
+	_produkRepo "warunk-bem/produk/repository"
+	_produkUsecase "warunk-bem/produk/usecase"
 	_userHttp "warunk-bem/user/delivery/http"
 	_userRepo "warunk-bem/user/repository"
 	_userUcase "warunk-bem/user/usecase"
@@ -21,7 +24,7 @@ import (
 
 func main() {
 	r := gin.Default()
-
+	r.MaxMultipartMemory = 8 << 20
 	middlewares := middlewares.InitMiddleware()
 	middlewares.Log()
 	r.Use(cors.New(cors.Config{
@@ -60,6 +63,10 @@ func main() {
 
 	loginUsecase := _authUsecase.NewAuthUsecase(userRepo, timeoutContext, author.App.Config)
 	_authHttp.NewAuthHandler(api, protected, loginUsecase, author.App.Config)
+
+	ProdukRepository := _produkRepo.NewProdukRepository(database)
+	ProdukUsecase := _produkUsecase.NewProdukUsecase(ProdukRepository, userRepo, timeoutContext)
+	_produkHttp.NewProdukHandler(api, protectedAdmin, ProdukUsecase)
 
 	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))
 	log.Fatal(r.Run(appPort))

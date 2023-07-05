@@ -193,7 +193,7 @@ func (u *userUsecase) UpdateOne(c context.Context, req *dtos.UpdateUserRequest, 
 	return res, nil
 }
 
-func (u *userUsecase) VerifyLogin(c context.Context, verification int) (res dtos.VerifyEmailResponse, err error) {
+func (u *userUsecase) VerifyLogin(c context.Context, verification int) (res dtos.VerifyLoginResponse, err error) {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
@@ -207,10 +207,14 @@ func (u *userUsecase) VerifyLogin(c context.Context, verification int) (res dtos
 	}
 
 	req.LoginVerif = 0
-
+	req.VerificationCode = 0
 	_, err = u.userRepo.UpdateOne(ctx, req, req.ID.Hex())
 	if err != nil {
 		return res, errors.New("cannot update user")
+	}
+
+	res = dtos.VerifyLoginResponse{
+		Message: "Login success",
 	}
 
 	return res, nil

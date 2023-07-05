@@ -38,7 +38,7 @@ type UserRepository interface {
 type UserUsecase interface {
 	InsertOne(ctx context.Context, req *dtos.RegisterUserRequest) (*dtos.RegisterUserResponseVerification, error)
 	FindOne(ctx context.Context, id string) (res *dtos.UserProfileResponse, err error)
-	VerifyLogin(ctx context.Context, verification int) (res dtos.VerifyEmailResponse, err error)
+	VerifyLogin(ctx context.Context, verification int) (res dtos.VerifyLoginResponse, err error)
 	VerifyAccount(ctx context.Context, activation int) (res dtos.VerifyEmailResponse, err error)
 	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]dtos.UserProfileResponse, int64, error)
 	UpdateOne(ctx context.Context, user *dtos.UpdateUserRequest, id string) (*dtos.UpdateUserResponse, error)

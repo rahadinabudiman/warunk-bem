@@ -12,3 +12,7 @@ type VerifyEmailResponse struct {
 	Email   string `json:"email" form:"email" validate:"required" example:"r4ha"`
 	Message string `json:"message" form:"message" example:"Email has been verified"`
 }
+
+type VerifyLoginResponse struct {
+	Message string `json:"message" form:"message" example:"Email has been verified"`
+}

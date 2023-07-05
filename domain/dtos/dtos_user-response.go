@@ -43,6 +43,7 @@ type UpdateUserResponse struct {
 type LoginUserResponse struct {
 	Username string `json:"username" validate:"required"`
 	Token    string `json:"token" form:"token"`
+	Message  string `json:"message" form:"message"`
 }
 
 type LogoutUserResponse struct {

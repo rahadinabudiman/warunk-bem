@@ -212,7 +212,7 @@ func (m *userRepository) FindVerificationCode(ctx context.Context, verification 
 		err  error
 	)
 
-	err = m.Collection.FindOne(ctx, bson.M{"loginverif": verification}).Decode(&user)
+	err = m.Collection.FindOne(ctx, bson.M{"verification": verification}).Decode(&user)
 	if err != nil {
 		return &user, err
 	}

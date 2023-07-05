@@ -54,11 +54,11 @@ func (r *dashboardRepository) DashboardGetAll() ([]domain.Produk, *domain.User, 
 
 	// Process aggregation results
 	var produk []domain.Produk
-	var user *domain.User // Change the type to *domain.User
+	var user *domain.User
 	for cursor.Next(ctx) {
 		var result struct {
 			Produk domain.Produk `bson:"_id"`
-			User   *domain.User  `bson:"user"` // Change the type to *domain.User
+			User   *domain.User  `bson:"user"`
 		}
 		if err := cursor.Decode(&result); err != nil {
 			return nil, nil, err

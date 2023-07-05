@@ -12,6 +12,9 @@ import (
 	_produkHttp "warunk-bem/produk/delivery/http"
 	_produkRepo "warunk-bem/produk/repository"
 	_produkUsecase "warunk-bem/produk/usecase"
+	_transaksihttp "warunk-bem/transaksi/delivery/http"
+	_transaksiRepo "warunk-bem/transaksi/repository"
+	_transaksiUsecase "warunk-bem/transaksi/usecase"
 	_userHttp "warunk-bem/user/delivery/http"
 	_userRepo "warunk-bem/user/repository"
 	_userUcase "warunk-bem/user/usecase"
@@ -67,6 +70,10 @@ func main() {
 	ProdukRepository := _produkRepo.NewProdukRepository(database)
 	ProdukUsecase := _produkUsecase.NewProdukUsecase(ProdukRepository, userRepo, timeoutContext)
 	_produkHttp.NewProdukHandler(api, protectedAdmin, ProdukUsecase)
+
+	TransaksiRepository := _transaksiRepo.NewTransaksiRepository(database)
+	TransaksiUsecase := _transaksiUsecase.NewTransaksiUsecase(TransaksiRepository, ProdukRepository, userRepo, timeoutContext)
+	_transaksihttp.NewUserHandler(protected, protectedAdmin, TransaksiUsecase)
 
 	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))
 	log.Fatal(r.Run(appPort))

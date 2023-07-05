@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 	"warunk-bem/domain"
-	"warunk-bem/domain/dtos"
+	"warunk-bem/dtos"
 	"warunk-bem/helpers"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"

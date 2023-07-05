@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-	"warunk-bem/domain/dtos"
+	"warunk-bem/dtos"
 	"warunk-bem/utils"
 
 	"github.com/gin-gonic/gin"

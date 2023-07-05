@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"warunk-bem/domain"
-	"warunk-bem/domain/dtos"
+	"warunk-bem/dtos"
 	"warunk-bem/middlewares"
 
 	"github.com/gin-gonic/gin"

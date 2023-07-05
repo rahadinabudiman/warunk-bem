@@ -118,12 +118,16 @@ func (m *userRepository) UpdateOne(ctx context.Context, user *domain.User, id st
 
 	filter := bson.M{"_id": idHex}
 	update := bson.M{"$set": bson.M{
-		"name":       user.Name,
-		"email":      user.Email,
-		"username":   user.Username,
-		"password":   user.Password,
-		"updated_at": time.Now(),
-		"role":       user.Role,
+		"name":            user.Name,
+		"email":           user.Email,
+		"username":        user.Username,
+		"password":        user.Password,
+		"updated_at":      time.Now(),
+		"role":            user.Role,
+		"verified":        user.Verified,
+		"loginverif":      user.LoginVerif,
+		"verification":    user.VerificationCode,
+		"activation_code": user.ActivationCode,
 	}}
 
 	_, err = m.Collection.UpdateOne(ctx, filter, update)
@@ -195,6 +199,33 @@ func (m *userRepository) FindEmail(ctx context.Context, email string) (*domain.U
 	)
 
 	err = m.Collection.FindOne(ctx, bson.M{"email": email}).Decode(&user)
+	if err != nil {
+		return &user, err
+	}
+
+	return &user, nil
+}
+
+func (m *userRepository) FindVerificationCode(ctx context.Context, verification int) (*domain.User, error) {
+	var (
+		user domain.User
+		err  error
+	)
+
+	err = m.Collection.FindOne(ctx, bson.M{"loginverif": verification}).Decode(&user)
+	if err != nil {
+		return &user, err
+	}
+
+	return &user, nil
+}
+
+func (m *userRepository) FindActivationCode(ctx context.Context, activation int) (*domain.User, error) {
+	var (
+		user domain.User
+		err  error
+	)
+	err = m.Collection.FindOne(ctx, bson.M{"activation_code": activation}).Decode(&user)
 	if err != nil {
 		return &user, err
 	}

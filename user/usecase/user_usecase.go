@@ -69,7 +69,8 @@ func (u *userUsecase) InsertOne(c context.Context, req *dtos.RegisterUserRequest
 	if err != nil {
 		return res, errors.New("failed to Generate OTP")
 	}
-	VerificationCode := NewOTP
+	VerificationCode := 0
+	ActivationCode := NewOTP
 
 	req.Password = passwordHash
 	req.Verified = false
@@ -84,6 +85,7 @@ func (u *userUsecase) InsertOne(c context.Context, req *dtos.RegisterUserRequest
 		Password:         req.Password,
 		Verified:         req.Verified,
 		VerificationCode: VerificationCode,
+		ActivationCode:   ActivationCode,
 		Role:             req.Role,
 	}
 
@@ -186,6 +188,67 @@ func (u *userUsecase) UpdateOne(c context.Context, req *dtos.UpdateUserRequest, 
 		Name:     resp.Name,
 		Username: resp.Username,
 		Email:    resp.Email,
+	}
+
+	return res, nil
+}
+
+func (u *userUsecase) VerifyLogin(c context.Context, verification int) (res dtos.VerifyEmailResponse, err error) {
+	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
+	defer cancel()
+
+	if verification == 0 {
+		return res, errors.New("verification code is empty")
+	}
+
+	req, err := u.userRepo.FindVerificationCode(ctx, verification)
+	if err != nil {
+		return res, errors.New("verification code is wrong")
+	}
+
+	req.LoginVerif = 0
+
+	_, err = u.userRepo.UpdateOne(ctx, req, req.ID.Hex())
+	if err != nil {
+		return res, errors.New("cannot update user")
+	}
+
+	return res, nil
+}
+
+func (u *userUsecase) VerifyAccount(c context.Context, activation int) (res dtos.VerifyEmailResponse, err error) {
+	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
+	defer cancel()
+
+	if activation == 0 {
+		return res, errors.New("activation code is empty")
+	}
+
+	req, err := u.userRepo.FindActivationCode(ctx, activation)
+	if err != nil {
+		return res, errors.New("activation code is wrong")
+	}
+
+	if req.Verified {
+		return res, errors.New("email already verified")
+	}
+
+	result, err := u.userRepo.FindOne(ctx, req.ID.Hex())
+	if err != nil {
+		return res, errors.New("cannot get user")
+	}
+
+	result.Verified = true
+	result.ActivationCode = 0
+	idUser := req.ID.Hex()
+	_, err = u.userRepo.UpdateOne(ctx, result, idUser)
+	if err != nil {
+		return res, err
+	}
+
+	res = dtos.VerifyEmailResponse{
+		Email:   result.Email,
+		Message: "Email has been verified",
 	}
 
 	return res, nil

@@ -72,7 +72,7 @@ func main() {
 	_produkHttp.NewProdukHandler(api, protectedAdmin, ProdukUsecase)
 
 	TransaksiRepository := _transaksiRepo.NewTransaksiRepository(database)
-	TransaksiUsecase := _transaksiUsecase.NewTransaksiUsecase(TransaksiRepository, ProdukRepository, userRepo, timeoutContext)
+	TransaksiUsecase := _transaksiUsecase.NewTransaksiUsecase(TransaksiRepository, ProdukRepository, userRepo, userAmountRepo, timeoutContext)
 	_transaksihttp.NewUserHandler(protected, protectedAdmin, TransaksiUsecase)
 
 	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))

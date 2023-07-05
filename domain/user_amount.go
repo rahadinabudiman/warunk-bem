@@ -18,4 +18,5 @@ type UserAmount struct {
 type UserAmountRepository interface {
 	InsertOne(ctx context.Context, req *UserAmount) (res *UserAmount, err error)
 	FindOne(ctx context.Context, id string) (res *UserAmount, err error)
+	UpdateOne(ctx context.Context, amount *UserAmount, id string) (res *UserAmount, err error)
 }

@@ -2,7 +2,7 @@ package domain
 
 import (
 	"context"
-	"warunk-bem/domain/dtos"
+	"warunk-bem/dtos"
 
 	"github.com/gin-gonic/gin"
 )

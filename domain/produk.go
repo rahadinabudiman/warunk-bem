@@ -3,7 +3,7 @@ package domain
 import (
 	"context"
 	"time"
-	"warunk-bem/domain/dtos"
+	"warunk-bem/dtos"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )

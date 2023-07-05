@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"strconv"
 	"time"
 	"warunk-bem/domain"
 	"warunk-bem/domain/dtos"
@@ -67,9 +68,33 @@ func (u *authUsecase) LoginUser(c *gin.Context, ctx context.Context, req *dtos.L
 
 	middlewares.CreateCookie(c, token)
 
+	otp := helpers.GenerateRandomOTP(6)
+	NewOTP, err := strconv.Atoi(otp)
+	if err != nil {
+		return res, errors.New("failed to Generate OTP")
+	}
+
+	credential.LoginVerif = 1
+	credential.VerificationCode = NewOTP
+	credential.UpdatedAt = time.Now()
+
+	_, err = u.UserRepository.UpdateOne(ctx, credential, credential.ID.Hex())
+	if err != nil {
+		return nil, err
+	}
+
+	emailData := utils.EmailData{
+		Code:      NewOTP,
+		FirstName: credential.Name,
+		Subject:   "Your Verification Login Code",
+	}
+
+	utils.SendEmail(credential, &emailData)
+
 	res = &dtos.LoginUserResponse{
 		Username: credential.Username,
 		Token:    token,
+		Message:  "Please check your email for verification code",
 	}
 
 	return res, nil

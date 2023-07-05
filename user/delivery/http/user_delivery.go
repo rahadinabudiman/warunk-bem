@@ -30,6 +30,8 @@ func NewUserHandler(router *gin.RouterGroup, protected *gin.RouterGroup, protect
 	protectedAdmin = protectedAdmin.Group("/user")
 
 	api.POST("", handler.InsertOne)
+	api.POST("/activation", handler.VerifyAccount)
+	protected.POST("/verify", handler.VerifyLogin)
 	protected.GET("/:id", handler.FindOne)
 	protectedAdmin.GET("", handler.GetAll)
 	protected.PUT("/:id", handler.UpdateOne)
@@ -328,6 +330,111 @@ func (user *UserHandler) DeleteOne(c *gin.Context) {
 		dtos.NewResponseMessage(
 			http.StatusOK,
 			"Success",
+		),
+	)
+}
+
+func (user *UserHandler) VerifyLogin(c *gin.Context) {
+	var (
+		req dtos.VerifyLoginRequest
+		err error
+	)
+
+	_, err = middlewares.IsUser(c)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dtos.NewErrorResponse(
+				http.StatusBadRequest,
+				"Please login first before access to this",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+
+	err = c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(
+			http.StatusUnprocessableEntity,
+			dtos.NewErrorResponse(
+				http.StatusUnprocessableEntity,
+				"Filed Cannot Be Empty",
+				dtos.GetErrorData(err),
+			),
+		)
+	}
+
+	ctx := c.Request.Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	result, err := user.UsrUsecase.VerifyLogin(ctx, req.Code)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dtos.NewErrorResponse(
+				http.StatusBadRequest,
+				"Verification Code is Wrong",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		dtos.NewResponse(
+			http.StatusOK,
+			"Success",
+			result,
+		),
+	)
+}
+
+func (user *UserHandler) VerifyAccount(c *gin.Context) {
+	var (
+		req dtos.ActivationAccountRequest
+		err error
+	)
+
+	err = c.ShouldBindJSON(&req)
+	if err != nil {
+		c.JSON(
+			http.StatusUnprocessableEntity,
+			dtos.NewErrorResponse(
+				http.StatusUnprocessableEntity,
+				"Filed Cannot Be Empty",
+				dtos.GetErrorData(err),
+			),
+		)
+	}
+
+	ctx := c.Request.Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	res, err := user.UsrUsecase.VerifyAccount(ctx, req.Code)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dtos.NewErrorResponse(
+				http.StatusBadRequest,
+				"Verification Code is Wrong",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		dtos.NewResponse(
+			http.StatusOK,
+			"Your Activation has success",
+			res,
 		),
 	)
 }

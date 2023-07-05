@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 	"warunk-bem/domain"
-	"warunk-bem/domain/dtos"
+	"warunk-bem/dtos"
 	"warunk-bem/helpers"
 	"warunk-bem/utils"
 

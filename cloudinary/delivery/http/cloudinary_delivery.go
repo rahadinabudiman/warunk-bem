@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"warunk-bem/cloudinary/usecase"
 	"warunk-bem/domain"
-	"warunk-bem/domain/dtos"
+	"warunk-bem/dtos"
 
 	"github.com/gin-gonic/gin"
 )

@@ -4,6 +4,8 @@ import (
 	"context"
 	"warunk-bem/domain"
 	"warunk-bem/mongo"
+
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type userAmountRepository struct {
@@ -27,4 +29,13 @@ func (r *userAmountRepository) InsertOne(ctx context.Context, req *domain.UserAm
 	}
 
 	return req, nil
+}
+
+func (r *userAmountRepository) FindOne(ctx context.Context, id string) (res *domain.UserAmount, err error) {
+	err = r.Collection.FindOne(ctx, bson.M{"user_id": id}).Decode(res)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }

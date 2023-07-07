@@ -7,6 +7,9 @@ import (
 	_authHttp "warunk-bem/auth/delivery/http"
 	_authUsecase "warunk-bem/auth/usecase"
 	"warunk-bem/author"
+	_dashboardHttp "warunk-bem/dashboard/delivery/http"
+	_dashboardRepo "warunk-bem/dashboard/repository"
+	_dashboardUcase "warunk-bem/dashboard/usecase"
 	"warunk-bem/helpers"
 	"warunk-bem/middlewares"
 	_produkHttp "warunk-bem/produk/delivery/http"
@@ -74,6 +77,10 @@ func main() {
 	TransaksiRepository := _transaksiRepo.NewTransaksiRepository(database)
 	TransaksiUsecase := _transaksiUsecase.NewTransaksiUsecase(TransaksiRepository, ProdukRepository, userRepo, userAmountRepo, timeoutContext)
 	_transaksihttp.NewUserHandler(protected, protectedAdmin, TransaksiUsecase)
+
+	DashboardRepository := _dashboardRepo.NewDashboardRepository(database)
+	DashboardUsecase := _dashboardUcase.NewDashboardUsecase(DashboardRepository, userRepo, userAmountRepo, ProdukRepository, TransaksiRepository, timeoutContext)
+	_dashboardHttp.NewDashboardHandler(protected, DashboardUsecase)
 
 	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))
 	log.Fatal(r.Run(appPort))

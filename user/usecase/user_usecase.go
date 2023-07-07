@@ -74,6 +74,7 @@ func (u *userUsecase) InsertOne(c context.Context, req *dtos.RegisterUserRequest
 
 	req.Password = passwordHash
 	req.Verified = false
+	RoleBaru := "User"
 
 	CreateUser := &domain.User{
 		ID:               req.ID,
@@ -86,7 +87,7 @@ func (u *userUsecase) InsertOne(c context.Context, req *dtos.RegisterUserRequest
 		Verified:         req.Verified,
 		VerificationCode: VerificationCode,
 		ActivationCode:   ActivationCode,
-		Role:             req.Role,
+		Role:             RoleBaru,
 	}
 
 	createdUser, err := u.userRepo.InsertOne(ctx, CreateUser)

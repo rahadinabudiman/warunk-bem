@@ -97,13 +97,13 @@ func (user *UserHandler) InsertOne(c *gin.Context) {
 		return
 	}
 
-	message := "We sent an email with a verification code to " + result.Email
+	// message := "We sent an email with a verification code to " + result.Email
 	c.JSON(
 		http.StatusOK,
 		dtos.NewResponse(
 			http.StatusOK,
 			"Success",
-			message,
+			result,
 		),
 	)
 }

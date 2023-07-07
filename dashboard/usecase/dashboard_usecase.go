@@ -8,6 +8,7 @@ import (
 )
 
 type dashboardUsecase struct {
+	DashboardRepo  domain.DashboardRepository
 	UserRepo       domain.UserRepository
 	UserAmountRepo domain.UserAmountRepository
 	ProdukRepo     domain.ProdukRepository
@@ -15,8 +16,9 @@ type dashboardUsecase struct {
 	contextTimeout time.Duration
 }
 
-func NewDashboardUsecase(UserRepo domain.UserRepository, UserAmountRepo domain.UserAmountRepository, ProdukRepo domain.ProdukRepository, TransaksiRepo domain.TransaksiRepository, contextTimeout time.Duration) domain.DashboardUsecase {
+func NewDashboardUsecase(DashboardRepo domain.DashboardRepository, UserRepo domain.UserRepository, UserAmountRepo domain.UserAmountRepository, ProdukRepo domain.ProdukRepository, TransaksiRepo domain.TransaksiRepository, contextTimeout time.Duration) domain.DashboardUsecase {
 	return &dashboardUsecase{
+		DashboardRepo:  DashboardRepo,
 		UserRepo:       UserRepo,
 		UserAmountRepo: UserAmountRepo,
 		ProdukRepo:     ProdukRepo,

@@ -14,14 +14,16 @@ type TransaksiUsecase struct {
 	TransaksiRepo  domain.TransaksiRepository
 	ProdukRepo     domain.ProdukRepository
 	UserRepo       domain.UserRepository
+	UserAmountRepo domain.UserAmountRepository
 	contextTimeout time.Duration
 }
 
-func NewTransaksiUsecase(TransaksiRepo domain.TransaksiRepository, ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, contextTimeout time.Duration) domain.TransaksiUsecase {
+func NewTransaksiUsecase(TransaksiRepo domain.TransaksiRepository, ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, UserAmountRepo domain.UserAmountRepository, contextTimeout time.Duration) domain.TransaksiUsecase {
 	return &TransaksiUsecase{
 		TransaksiRepo:  TransaksiRepo,
 		ProdukRepo:     ProdukRepo,
 		UserRepo:       UserRepo,
+		UserAmountRepo: UserAmountRepo,
 		contextTimeout: contextTimeout,
 	}
 }
@@ -48,6 +50,26 @@ func (tu *TransaksiUsecase) InsertOne(ctx context.Context, req *dtos.InsertTrans
 
 	if produk.Stock < int64(req.Total) {
 		return nil, errors.New("stok produk tidak mencukupi")
+	}
+
+	hargaProduk := produk.Price
+	TotalBelanja := hargaProduk * int64(req.Total)
+
+	saldo, err := tu.UserAmountRepo.FindOne(ctx, req.UserID.Hex())
+	if err != nil {
+		return res, errors.New("cannot get useramount")
+	}
+
+	if saldo.Amount < float64(TotalBelanja) {
+		return nil, errors.New("saldo tidak mencukupi")
+	}
+
+	saldoAkhir := saldo.Amount - float64(TotalBelanja)
+	saldo.Amount = saldoAkhir
+
+	_, err = tu.UserAmountRepo.UpdateOne(ctx, saldo, saldo.ID.Hex())
+	if err != nil {
+		return res, err
 	}
 
 	produk.Stock = produk.Stock - int64(req.Total)

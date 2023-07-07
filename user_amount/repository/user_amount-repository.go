@@ -6,6 +6,7 @@ import (
 	"warunk-bem/mongo"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type userAmountRepository struct {
@@ -32,10 +33,42 @@ func (r *userAmountRepository) InsertOne(ctx context.Context, req *domain.UserAm
 }
 
 func (r *userAmountRepository) FindOne(ctx context.Context, id string) (res *domain.UserAmount, err error) {
-	err = r.Collection.FindOne(ctx, bson.M{"user_id": id}).Decode(res)
+	var (
+		amount domain.UserAmount
+	)
+
+	idHex, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, err
+		return &amount, err
 	}
 
-	return res, nil
+	err = r.Collection.FindOne(ctx, bson.M{"user_id": idHex}).Decode(&amount)
+	if err != nil {
+		return &amount, err
+	}
+
+	return &amount, nil
+}
+
+func (r *userAmountRepository) UpdateOne(ctx context.Context, amount *domain.UserAmount, id string) (res *domain.UserAmount, err error) {
+	idHex, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return amount, err
+	}
+
+	filter := bson.M{"_id": idHex}
+	update := bson.M{"$set": bson.M{
+		"amount": amount.Amount,
+	}}
+
+	_, err = r.Collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return amount, err
+	}
+
+	err = r.Collection.FindOne(ctx, bson.M{"_id": idHex}).Decode(amount)
+	if err != nil {
+		return amount, err
+	}
+	return amount, nil
 }

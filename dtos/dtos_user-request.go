@@ -33,6 +33,11 @@ type UpdateUserRequest struct {
 	Email    string `json:"email" form:"email" validate:"required,email" example:"me@r4ha.com"`
 }
 
+type TopUpSaldoRequest struct {
+	Email  string  `json:"email" form:"email"`
+	Amount float64 `json:"amount" form:"amount" validate:"required" example:"100000"`
+}
+
 type DeleteUserRequest struct {
 	Password string `json:"password" form:"password" validate:"required" example:"rahadinabudimansundara"`
 }

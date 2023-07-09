@@ -40,6 +40,12 @@ type UpdateUserResponse struct {
 	Email    string `json:"email" form:"email" validate:"required,email" example:"me@r4ha.com"`
 }
 
+type TopUpSaldoResponse struct {
+	Name    string  `json:"name" form:"name"`
+	Amount  float64 `json:"amount" form:"amount" validate:"required" example:"100000"`
+	Message string  `json:"message" form:"message"`
+}
+
 type LoginUserResponse struct {
 	Username string `json:"username" validate:"required"`
 	Token    string `json:"token" form:"token"`

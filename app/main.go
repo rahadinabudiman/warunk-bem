@@ -21,7 +21,9 @@ import (
 	_userHttp "warunk-bem/user/delivery/http"
 	_userRepo "warunk-bem/user/repository"
 	_userUcase "warunk-bem/user/usecase"
+	_userAmounthttp "warunk-bem/user_amount/delivery/http"
 	_userAmountRepo "warunk-bem/user_amount/repository"
+	_userAmountUsecase "warunk-bem/user_amount/usecase"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -81,6 +83,9 @@ func main() {
 	DashboardRepository := _dashboardRepo.NewDashboardRepository(database)
 	DashboardUsecase := _dashboardUcase.NewDashboardUsecase(DashboardRepository, userRepo, userAmountRepo, ProdukRepository, TransaksiRepository, timeoutContext)
 	_dashboardHttp.NewDashboardHandler(protected, DashboardUsecase)
+
+	UserAmountUsecase := _userAmountUsecase.NewUserAmountUsecase(userAmountRepo, userRepo, timeoutContext)
+	_userAmounthttp.NewUserAmountHandler(protectedAdmin, UserAmountUsecase)
 
 	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))
 	log.Fatal(r.Run(appPort))

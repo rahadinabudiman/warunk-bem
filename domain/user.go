@@ -42,5 +42,5 @@ type UserUsecase interface {
 	VerifyAccount(ctx context.Context, activation int) (res dtos.VerifyEmailResponse, err error)
 	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]dtos.UserProfileResponse, int64, error)
 	UpdateOne(ctx context.Context, user *dtos.UpdateUserRequest, id string) (*dtos.UpdateUserResponse, error)
-	DeleteOne(c context.Context, id string, req dtos.DeleteUserRequest) (res dtos.ResponseMessage, err error)
+	DeleteOne(ctx context.Context, id string, req dtos.DeleteUserRequest) (res dtos.ResponseMessage, err error)
 }

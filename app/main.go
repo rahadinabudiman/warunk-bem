@@ -11,6 +11,9 @@ import (
 	_dashboardRepo "warunk-bem/dashboard/repository"
 	_dashboardUcase "warunk-bem/dashboard/usecase"
 	"warunk-bem/helpers"
+	_keranjangHttp "warunk-bem/keranjang/delivery/http"
+	_keranjangRepo "warunk-bem/keranjang/repository"
+	_keranjangUcase "warunk-bem/keranjang/usecase"
 	"warunk-bem/middlewares"
 	_produkHttp "warunk-bem/produk/delivery/http"
 	_produkRepo "warunk-bem/produk/repository"
@@ -86,6 +89,10 @@ func main() {
 
 	UserAmountUsecase := _userAmountUsecase.NewUserAmountUsecase(userAmountRepo, userRepo, timeoutContext)
 	_userAmounthttp.NewUserAmountHandler(protectedAdmin, UserAmountUsecase)
+
+	KeranjangRepository := _keranjangRepo.NewKeranjangRepository(database)
+	KeranjangUsecase := _keranjangUcase.NewKeranjangUsecase(KeranjangRepository, ProdukRepository, userRepo, timeoutContext)
+	_keranjangHttp.NewKeranjangHandler(protected, protectedAdmin, KeranjangUsecase)
 
 	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))
 	log.Fatal(r.Run(appPort))

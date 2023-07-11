@@ -46,7 +46,7 @@ func (kr *keranjangRepository) FindOne(ctx context.Context, id string) (*domain.
 		return &keranjang, err
 	}
 
-	err = kr.Collection.FindOne(ctx, bson.M{"_id": idHex}).Decode(&keranjang)
+	err = kr.Collection.FindOne(ctx, bson.M{"user_id": idHex}).Decode(&keranjang)
 	if err != nil {
 		return &keranjang, err
 	}
@@ -97,7 +97,7 @@ func (kr *keranjangRepository) UpdateOne(ctx context.Context, keranjang *domain.
 		return keranjang, err
 	}
 
-	filter := bson.M{"_id": idHex}
+	filter := bson.M{"user_id": idHex}
 	update := bson.M{"$set": keranjang}
 
 	_, err = kr.Collection.UpdateOne(ctx, filter, update)
@@ -105,7 +105,7 @@ func (kr *keranjangRepository) UpdateOne(ctx context.Context, keranjang *domain.
 		return keranjang, err
 	}
 
-	err = kr.Collection.FindOne(ctx, bson.M{"_id": idHex}).Decode(keranjang)
+	err = kr.Collection.FindOne(ctx, bson.M{"user_id": idHex}).Decode(keranjang)
 	if err != nil {
 		return keranjang, err
 	}

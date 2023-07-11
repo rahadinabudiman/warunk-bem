@@ -92,7 +92,7 @@ func main() {
 
 	KeranjangRepository := _keranjangRepo.NewKeranjangRepository(database)
 	KeranjangUsecase := _keranjangUcase.NewKeranjangUsecase(KeranjangRepository, ProdukRepository, userRepo, timeoutContext)
-	_keranjangHttp.NewKeranjangHandler(protected, protectedAdmin, KeranjangUsecase)
+	_keranjangHttp.NewKeranjangHandler(protected, protectedAdmin, KeranjangUsecase, ProdukUsecase)
 
 	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))
 	log.Fatal(r.Run(appPort))

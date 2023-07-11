@@ -8,15 +8,18 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type KeranjangHandler struct {
 	KeranjangUsecase domain.KeranjangUsecase
+	ProdukUsecase    domain.ProdukUsecase
 }
 
-func NewKeranjangHandler(protected *gin.RouterGroup, protectedAdmin *gin.RouterGroup, uu domain.KeranjangUsecase) {
+func NewKeranjangHandler(protected *gin.RouterGroup, protectedAdmin *gin.RouterGroup, uu domain.KeranjangUsecase, pu domain.ProdukUsecase) {
 	handler := &KeranjangHandler{
 		KeranjangUsecase: uu,
+		ProdukUsecase:    pu,
 	}
 
 	protected = protected.Group("/keranjang")
@@ -25,7 +28,7 @@ func NewKeranjangHandler(protected *gin.RouterGroup, protectedAdmin *gin.RouterG
 	protected.POST("", handler.InsertOne)
 }
 
-func isRequestValid(m *dtos.InsertKeranjangRequest) (bool, error) {
+func isRequestValid(m *domain.InsertKeranjangRequest) (bool, error) {
 	validate := validator.New()
 	err := validate.Struct(m)
 	if err != nil {
@@ -48,7 +51,7 @@ func (tc *KeranjangHandler) InsertOne(c *gin.Context) {
 		return
 	}
 
-	var keranjang dtos.InsertKeranjangRequest
+	var keranjang domain.InsertKeranjangRequest
 	err = c.ShouldBindJSON(&keranjang)
 	if err != nil {
 		c.JSON(
@@ -74,8 +77,88 @@ func (tc *KeranjangHandler) InsertOne(c *gin.Context) {
 		return
 	}
 
-	keranjang.UserID = idUser
-	res, err := tc.KeranjangUsecase.InsertOne(c, &keranjang)
+	check, _ := tc.KeranjangUsecase.FindOne(c, idUser)
+	if check == nil {
+		keranjang.UserID = idUser
+		res, err := tc.KeranjangUsecase.InsertOne(c, &keranjang)
+		if err != nil {
+			c.JSON(
+				http.StatusBadRequest,
+				dtos.NewErrorResponse(
+					http.StatusBadRequest,
+					"Invalid request",
+					dtos.GetErrorData(err),
+				),
+			)
+			return
+		}
+
+		c.JSON(
+			http.StatusCreated,
+			dtos.NewResponse(
+				http.StatusCreated,
+				"Success",
+				res,
+			),
+		)
+		return
+	}
+
+	// keranjangExisting, err := tc.KeranjangUsecase.FindOne(c, idUser)
+	// if err != nil {
+	// 	c.JSON(
+	// 		http.StatusBadRequest,
+	// 		dtos.NewErrorResponse(
+	// 			http.StatusBadRequest,
+	// 			"Invalid request",
+	// 			dtos.GetErrorData(err),
+	// 		),
+	// 	)
+	// 	return
+	// }
+
+	ProdukBaru, err := tc.ProdukUsecase.FindOne(c, keranjang.ProdukID)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dtos.NewErrorResponse(
+				http.StatusBadRequest,
+				"Invalid request",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+	ProdukID, err := primitive.ObjectIDFromHex(keranjang.ProdukID)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dtos.NewErrorResponse(
+				http.StatusBadRequest,
+				"Invalid request",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+	ProdukBaruLagi := []domain.Produk{
+		{
+			ID:       ProdukID,
+			Slug:     ProdukBaru.Slug,
+			Name:     ProdukBaru.Name,
+			Price:    ProdukBaru.Price,
+			Stock:    int64(keranjang.Total),
+			Image:    ProdukBaru.Image,
+			Category: ProdukBaru.Category,
+		},
+	}
+
+	// Update existing keranjang
+	keranjangBaruBanget := &domain.Keranjang{
+		Produk: ProdukBaruLagi,
+	}
+
+	res, err := tc.KeranjangUsecase.UpdateOne(c, idUser, keranjangBaruBanget)
 	if err != nil {
 		c.JSON(
 			http.StatusBadRequest,

@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 	"warunk-bem/domain"
-	"warunk-bem/dtos"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -25,8 +24,8 @@ func NewKeranjangUsecase(KeranjangRepo domain.KeranjangRepository, ProdukRepo do
 	}
 }
 
-func (ku *KeranjangUsecase) InsertOne(ctx context.Context, req *dtos.InsertKeranjangRequest) (*dtos.InsertKeranjangResponse, error) {
-	var res *dtos.InsertKeranjangResponse
+func (ku *KeranjangUsecase) InsertOne(ctx context.Context, req *domain.InsertKeranjangRequest) (*domain.InsertKeranjangResponse, error) {
+	var res *domain.InsertKeranjangResponse
 
 	ctx, cancel := context.WithTimeout(ctx, ku.contextTimeout)
 	defer cancel()
@@ -56,7 +55,7 @@ func (ku *KeranjangUsecase) InsertOne(ctx context.Context, req *dtos.InsertKeran
 				Slug:     produk.Slug,
 				Name:     produk.Name,
 				Price:    produk.Price,
-				Stock:    produk.Stock,
+				Stock:    int64(req.Total),
 				Image:    produk.Image,
 				Category: produk.Category,
 			},
@@ -68,4 +67,54 @@ func (ku *KeranjangUsecase) InsertOne(ctx context.Context, req *dtos.InsertKeran
 	}
 
 	return res, nil
+}
+
+func (ku *KeranjangUsecase) FindOne(ctx context.Context, id string) (*domain.InsertKeranjangResponse, error) {
+	ctx, cancel := context.WithTimeout(ctx, ku.contextTimeout)
+	defer cancel()
+
+	keranjang, err := ku.KeranjangRepo.FindOne(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &domain.InsertKeranjangResponse{
+		UserID: keranjang.UserID.Hex(),
+		Produk: keranjang.Produk,
+	}
+
+	return res, nil
+}
+
+func (ku *KeranjangUsecase) UpdateOne(ctx context.Context, id string, req *domain.Keranjang) (*domain.Keranjang, error) {
+	ctx, cancel := context.WithTimeout(ctx, ku.contextTimeout)
+	defer cancel()
+
+	result, err := ku.KeranjangRepo.FindOne(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Jika produk sudah ada di keranjang, tambahkan stoknya saja jangan tambahkan array produknya
+	for i, v := range result.Produk {
+		if v.ID == req.Produk[0].ID {
+			result.Produk[i].Stock += req.Produk[0].Stock
+			result.Total += int(req.Produk[0].Stock)
+			_, err = ku.KeranjangRepo.UpdateOne(ctx, result, id)
+			if err != nil {
+				return nil, err
+			}
+			return result, nil
+		}
+	}
+
+	result.Produk = append(result.Produk, req.Produk...)
+	result.Total += req.Total
+
+	_, err = ku.KeranjangRepo.UpdateOne(ctx, result, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }

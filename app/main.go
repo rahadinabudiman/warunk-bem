@@ -79,8 +79,12 @@ func main() {
 	ProdukUsecase := _produkUsecase.NewProdukUsecase(ProdukRepository, userRepo, timeoutContext)
 	_produkHttp.NewProdukHandler(api, protectedAdmin, ProdukUsecase)
 
+	KeranjangRepository := _keranjangRepo.NewKeranjangRepository(database)
+	KeranjangUsecase := _keranjangUcase.NewKeranjangUsecase(KeranjangRepository, ProdukRepository, userRepo, timeoutContext)
+	_keranjangHttp.NewKeranjangHandler(protected, protectedAdmin, KeranjangUsecase, ProdukUsecase)
+
 	TransaksiRepository := _transaksiRepo.NewTransaksiRepository(database)
-	TransaksiUsecase := _transaksiUsecase.NewTransaksiUsecase(TransaksiRepository, ProdukRepository, userRepo, userAmountRepo, timeoutContext)
+	TransaksiUsecase := _transaksiUsecase.NewTransaksiUsecase(TransaksiRepository, KeranjangRepository, ProdukRepository, userRepo, userAmountRepo, timeoutContext)
 	_transaksihttp.NewUserHandler(protected, protectedAdmin, TransaksiUsecase)
 
 	DashboardRepository := _dashboardRepo.NewDashboardRepository(database)
@@ -89,10 +93,6 @@ func main() {
 
 	UserAmountUsecase := _userAmountUsecase.NewUserAmountUsecase(userAmountRepo, userRepo, timeoutContext)
 	_userAmounthttp.NewUserAmountHandler(protectedAdmin, UserAmountUsecase)
-
-	KeranjangRepository := _keranjangRepo.NewKeranjangRepository(database)
-	KeranjangUsecase := _keranjangUcase.NewKeranjangUsecase(KeranjangRepository, ProdukRepository, userRepo, timeoutContext)
-	_keranjangHttp.NewKeranjangHandler(protected, protectedAdmin, KeranjangUsecase)
 
 	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))
 	log.Fatal(r.Run(appPort))

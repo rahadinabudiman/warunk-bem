@@ -26,6 +26,7 @@ func NewKeranjangHandler(protected *gin.RouterGroup, protectedAdmin *gin.RouterG
 	// protectedAdmin = protectedAdmin.Group("/keranjang")
 
 	protected.POST("", handler.InsertOne)
+	protected.GET("", handler.FindOne)
 }
 
 func isRequestValid(m *domain.InsertKeranjangRequest) (bool, error) {
@@ -180,4 +181,41 @@ func (tc *KeranjangHandler) InsertOne(c *gin.Context) {
 		)
 		return
 	}
+}
+
+func (tc *KeranjangHandler) FindOne(c *gin.Context) {
+	idUser, err := middlewares.IsUser(c)
+	if err != nil {
+		c.JSON(
+			http.StatusUnauthorized,
+			dtos.NewErrorResponse(
+				http.StatusUnauthorized,
+				"Unauthorized",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+
+	res, err := tc.KeranjangUsecase.FindOne(c, idUser)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dtos.NewErrorResponse(
+				http.StatusBadRequest,
+				"Invalid request",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		dtos.NewResponse(
+			http.StatusOK,
+			"Success",
+			res,
+		),
+	)
 }

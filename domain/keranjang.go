@@ -35,6 +35,7 @@ type InsertKeranjangResponse struct {
 type KeranjangRepository interface {
 	InsertOne(ctx context.Context, req *Keranjang) (*Keranjang, error)
 	FindOne(ctx context.Context, id string) (*Keranjang, error)
+	FindOneKeranjang(ctx context.Context, id string) (*Keranjang, error)
 	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]Keranjang, int64, error)
 	UpdateOne(ctx context.Context, keranjang *Keranjang, id string) (*Keranjang, error)
 	DeleteOne(ctx context.Context, id string) error

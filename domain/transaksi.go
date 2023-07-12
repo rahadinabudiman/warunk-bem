@@ -28,6 +28,7 @@ type TransaksiRepository interface {
 
 type TransaksiUsecase interface {
 	InsertOne(ctx context.Context, req *dtos.InsertTransaksiRequest) (*dtos.InsertTransaksiResponse, error)
+	InsertByKeranjang(ctx context.Context, req *dtos.InsertTransaksiKeranjangRequest) (*dtos.InsertTransaksiResponse, error)
 	// FindOne(ctx context.Context, id string) (res *dtos.UserProfileResponse, err error)
 	// GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]dtos.UserProfileResponse, int64, error)
 	// UpdateOne(ctx context.Context, user *dtos.UpdateUserRequest, id string) (*dtos.UpdateUserResponse, error)

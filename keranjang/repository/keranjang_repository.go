@@ -35,6 +35,25 @@ func (kr *keranjangRepository) InsertOne(ctx context.Context, req *domain.Keranj
 	return req, nil
 }
 
+func (kr *keranjangRepository) FindOneKeranjang(ctx context.Context, id string) (*domain.Keranjang, error) {
+	var (
+		keranjang domain.Keranjang
+		err       error
+	)
+
+	idHex, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return &keranjang, err
+	}
+
+	err = kr.Collection.FindOne(ctx, bson.M{"_id": idHex}).Decode(&keranjang)
+	if err != nil {
+		return &keranjang, err
+	}
+
+	return &keranjang, nil
+}
+
 func (kr *keranjangRepository) FindOne(ctx context.Context, id string) (*domain.Keranjang, error) {
 	var (
 		keranjang domain.Keranjang

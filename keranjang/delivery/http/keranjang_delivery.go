@@ -102,81 +102,82 @@ func (tc *KeranjangHandler) InsertOne(c *gin.Context) {
 			),
 		)
 		return
-	}
-
-	// keranjangExisting, err := tc.KeranjangUsecase.FindOne(c, idUser)
-	// if err != nil {
-	// 	c.JSON(
-	// 		http.StatusBadRequest,
-	// 		dtos.NewErrorResponse(
-	// 			http.StatusBadRequest,
-	// 			"Invalid request",
-	// 			dtos.GetErrorData(err),
-	// 		),
-	// 	)
-	// 	return
-	// }
-
-	ProdukBaru, err := tc.ProdukUsecase.FindOne(c, keranjang.ProdukID)
-	if err != nil {
-		c.JSON(
-			http.StatusBadRequest,
-			dtos.NewErrorResponse(
+	} else {
+		produkBaru, err := tc.ProdukUsecase.FindOne(c, keranjang.ProdukID)
+		if err != nil {
+			c.JSON(
 				http.StatusBadRequest,
-				"Invalid request",
-				dtos.GetErrorData(err),
-			),
-		)
-		return
-	}
-	ProdukID, err := primitive.ObjectIDFromHex(keranjang.ProdukID)
-	if err != nil {
-		c.JSON(
-			http.StatusBadRequest,
-			dtos.NewErrorResponse(
+				dtos.NewErrorResponse(
+					http.StatusBadRequest,
+					"Invalid request",
+					dtos.GetErrorData(err),
+				),
+			)
+			return
+		}
+
+		produkID, err := primitive.ObjectIDFromHex(keranjang.ProdukID)
+		if err != nil {
+			c.JSON(
 				http.StatusBadRequest,
-				"Invalid request",
-				dtos.GetErrorData(err),
-			),
-		)
-		return
-	}
-	ProdukBaruLagi := []domain.Produk{
-		{
-			ID:       ProdukID,
-			Slug:     ProdukBaru.Slug,
-			Name:     ProdukBaru.Name,
-			Price:    ProdukBaru.Price,
+				dtos.NewErrorResponse(
+					http.StatusBadRequest,
+					"Invalid request",
+					dtos.GetErrorData(err),
+				),
+			)
+			return
+		}
+
+		produkBaruLagi := domain.Produk{
+			ID:       produkID,
+			Slug:     produkBaru.Slug,
+			Name:     produkBaru.Name,
+			Price:    produkBaru.Price,
 			Stock:    int64(keranjang.Total),
-			Image:    ProdukBaru.Image,
-			Category: ProdukBaru.Category,
-		},
-	}
+			Image:    produkBaru.Image,
+			Category: produkBaru.Category,
+		}
 
-	// Update existing keranjang
-	keranjangBaruBanget := &domain.Keranjang{
-		Produk: ProdukBaruLagi,
-	}
-
-	res, err := tc.KeranjangUsecase.UpdateOne(c, idUser, keranjangBaruBanget)
-	if err != nil {
-		c.JSON(
-			http.StatusBadRequest,
-			dtos.NewErrorResponse(
+		UserID, err := primitive.ObjectIDFromHex(check.UserID)
+		if err != nil {
+			c.JSON(
 				http.StatusBadRequest,
-				"Invalid request",
-				dtos.GetErrorData(err),
+				dtos.NewErrorResponse(
+					http.StatusBadRequest,
+					"Invalid request",
+					dtos.GetErrorData(err),
+				),
+			)
+			return
+		}
+		keranjangBaruBanget := &domain.Keranjang{
+			UserID: UserID,
+			Produk: []domain.Produk{produkBaruLagi},
+			Total:  check.Total + keranjang.Total,
+		}
+
+		res, err := tc.KeranjangUsecase.UpdateOne(c, idUser, keranjangBaruBanget)
+		if err != nil {
+			c.JSON(
+				http.StatusBadRequest,
+				dtos.NewErrorResponse(
+					http.StatusBadRequest,
+					"Invalid request",
+					dtos.GetErrorData(err),
+				),
+			)
+			return
+		}
+
+		c.JSON(
+			http.StatusCreated,
+			dtos.NewResponse(
+				http.StatusCreated,
+				"Success",
+				res,
 			),
 		)
 		return
 	}
-
-	c.JSON(
-		http.StatusCreated,
-		dtos.NewResponse(
-			http.StatusCreated,
-			"Success",
-			res,
-		),
-	)
 }

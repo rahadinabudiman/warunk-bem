@@ -95,6 +95,19 @@ func (ku *KeranjangUsecase) UpdateOne(ctx context.Context, id string, req *domai
 		return nil, err
 	}
 
+	// Jika produk sudah ada di keranjang, tambahkan stoknya saja jangan tambahkan array produknya
+	for i, v := range result.Produk {
+		if v.ID == req.Produk[0].ID {
+			result.Produk[i].Stock += req.Produk[0].Stock
+			result.Total += int(req.Produk[0].Stock)
+			_, err = ku.KeranjangRepo.UpdateOne(ctx, result, id)
+			if err != nil {
+				return nil, err
+			}
+			return result, nil
+		}
+	}
+
 	result.Produk = append(result.Produk, req.Produk...)
 	result.Total += req.Total
 

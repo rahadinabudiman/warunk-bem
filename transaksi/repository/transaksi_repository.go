@@ -55,6 +55,36 @@ func (tr *transaksiRepository) FindOne(ctx context.Context, id string) (*domain.
 	return &transaksi, err
 }
 
+func (tr *transaksiRepository) FindAllByUserId(ctx context.Context, id string) ([]*domain.Transaksi, error) {
+	var transaksis []*domain.Transaksi
+
+	idHex, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return transaksis, err
+	}
+
+	filter := bson.M{"user_id": idHex}
+	cursor, err := tr.Collection.Find(ctx, filter)
+	if err != nil {
+		return transaksis, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var transaksi domain.Transaksi
+		if err := cursor.Decode(&transaksi); err != nil {
+			return transaksis, err
+		}
+		transaksis = append(transaksis, &transaksi)
+	}
+
+	if err != nil {
+		return transaksis, err
+	}
+
+	return transaksis, nil
+}
+
 func (tr *transaksiRepository) GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]domain.Transaksi, int64, error) {
 	var (
 		transaksi []domain.Transaksi

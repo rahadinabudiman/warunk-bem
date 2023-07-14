@@ -27,6 +27,7 @@ type InsertKeranjangRequest struct {
 }
 
 type InsertKeranjangResponse struct {
+	ID     string   `json:"id"`
 	UserID string   `json:"user_id"`
 	Produk []Produk `json:"produk"`
 	Total  int      `json:"total"`

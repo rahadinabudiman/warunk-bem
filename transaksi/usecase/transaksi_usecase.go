@@ -31,6 +31,38 @@ func NewTransaksiUsecase(TransaksiRepo domain.TransaksiRepository, KeranjangRepo
 	}
 }
 
+func (tu *TransaksiUsecase) FindAll(c context.Context, id string) (res []*dtos.RiwayatTransaksiResponse, err error) {
+	ctx, cancel := context.WithTimeout(c, tu.contextTimeout)
+	defer cancel()
+
+	transaksis, err := tu.TransaksiRepo.FindAllByUserId(ctx, id)
+	if err != nil {
+		return nil, errors.New("cannot get user transaksi")
+	}
+
+	for _, transaksi := range transaksis {
+		produk, err := tu.ProdukRepo.FindOne(ctx, transaksi.ProdukID.Hex())
+		if err != nil {
+			return nil, errors.New("cannot get produk")
+		}
+
+		totalharga := produk.Price * transaksi.Total
+
+		riwayatTransaksi := &dtos.RiwayatTransaksiResponse{
+			Name:      produk.Name,
+			CreatedAt: transaksi.CreatedAt.Format("2006-01-02"),
+			Waktu:     transaksi.CreatedAt.Format("15:04:05"),
+			Harga:     totalharga,
+			Total:     transaksi.Total,
+			Image:     produk.Image,
+		}
+
+		res = append(res, riwayatTransaksi)
+	}
+
+	return res, nil
+}
+
 func (tu *TransaksiUsecase) InsertOne(ctx context.Context, req *dtos.InsertTransaksiRequest) (*dtos.InsertTransaksiResponse, error) {
 	var res *dtos.InsertTransaksiResponse
 
@@ -45,6 +77,10 @@ func (tu *TransaksiUsecase) InsertOne(ctx context.Context, req *dtos.InsertTrans
 	user, err := tu.UserRepo.FindOne(ctx, req.UserID.Hex())
 	if err != nil {
 		return res, err
+	}
+
+	if req.Total == 0 {
+		return nil, errors.New("harap masukan jumlah produk yang ingin dibeli")
 	}
 
 	if produk.Stock == 0 {

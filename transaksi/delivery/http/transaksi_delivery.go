@@ -26,6 +26,7 @@ func NewUserHandler(protected *gin.RouterGroup, protectedAdmin *gin.RouterGroup,
 
 	protected.POST("", handler.InsertOne)
 	protected.POST("/keranjang", handler.InsertByKeranjang)
+	protected.GET("", handler.FindOneUserID)
 }
 
 func isRequestValid(m *dtos.InsertTransaksiRequest) (bool, error) {
@@ -35,6 +36,43 @@ func isRequestValid(m *dtos.InsertTransaksiRequest) (bool, error) {
 		return false, err
 	}
 	return true, nil
+}
+
+func (tc *TransaksiHandler) FindOneUserID(c *gin.Context) {
+	idUser, err := middlewares.IsUser(c)
+	if err != nil {
+		c.JSON(
+			http.StatusUnauthorized,
+			dtos.NewErrorResponse(
+				http.StatusUnauthorized,
+				"Unauthorized",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+
+	res, err := tc.TransaksiUsecase.FindAll(c, idUser)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dtos.NewErrorResponse(
+				http.StatusBadRequest,
+				"Bad Request",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		dtos.NewResponse(
+			http.StatusOK,
+			"Success",
+			res,
+		),
+	)
 }
 
 func (tc *TransaksiHandler) InsertOne(c *gin.Context) {

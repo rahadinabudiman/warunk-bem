@@ -79,6 +79,7 @@ func (ku *KeranjangUsecase) FindOne(ctx context.Context, id string) (*domain.Ins
 	}
 
 	res := &domain.InsertKeranjangResponse{
+		ID:     keranjang.ID.Hex(),
 		UserID: keranjang.UserID.Hex(),
 		Produk: keranjang.Produk,
 	}

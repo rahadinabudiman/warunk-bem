@@ -11,6 +11,7 @@ type InsertProdukResponse struct {
 }
 
 type ProdukDetailResponse struct {
+	ID       string `bson:"_id" json:"id"`
 	Name     string `bson:"name" json:"name"`
 	Slug     string `bson:"slug" json:"slug"`
 	Detail   string `bson:"detail" json:"detail"`

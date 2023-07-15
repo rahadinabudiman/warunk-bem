@@ -6,4 +6,4 @@ services:
       dockerfile: Dockerfile
     container_name: warunk-bem
     ports:
-      - 9090:9090
+      - 8080:8080

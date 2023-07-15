@@ -21,6 +21,7 @@ type Transaksi struct {
 type TransaksiRepository interface {
 	InsertOne(ctx context.Context, req *Transaksi) (*Transaksi, error)
 	FindOne(ctx context.Context, id string) (*Transaksi, error)
+	FindAllByUserId(ctx context.Context, id string) ([]*Transaksi, error)
 	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]Transaksi, int64, error)
 	UpdateOne(ctx context.Context, transaksi *Transaksi, id string) (*Transaksi, error)
 	DeleteOne(ctx context.Context, id string) error
@@ -29,7 +30,7 @@ type TransaksiRepository interface {
 type TransaksiUsecase interface {
 	InsertOne(ctx context.Context, req *dtos.InsertTransaksiRequest) (*dtos.InsertTransaksiResponse, error)
 	InsertByKeranjang(ctx context.Context, req *dtos.InsertTransaksiKeranjangRequest) (*dtos.InsertTransaksiResponse, error)
-	// FindOne(ctx context.Context, id string) (res *dtos.UserProfileResponse, err error)
+	FindAll(ctx context.Context, id string) (res []*dtos.RiwayatTransaksiResponse, err error)
 	// GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]dtos.UserProfileResponse, int64, error)
 	// UpdateOne(ctx context.Context, user *dtos.UpdateUserRequest, id string) (*dtos.UpdateUserResponse, error)
 	// DeleteOne(c context.Context, id string, req dtos.DeleteUserRequest) (res dtos.ResponseMessage, err error)

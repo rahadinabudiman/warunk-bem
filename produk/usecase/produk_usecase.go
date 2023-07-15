@@ -80,6 +80,7 @@ func (pu *produkUsecase) FindOne(c context.Context, id string) (res *dtos.Produk
 	}
 
 	res = &dtos.ProdukDetailResponse{
+		ID:       req.ID.Hex(),
 		Name:     req.Name,
 		Slug:     req.Slug,
 		Detail:   req.Detail,
@@ -105,6 +106,7 @@ func (pu *produkUsecase) GetAllWithPage(c context.Context, rp int64, p int64, fi
 
 	for _, v := range req {
 		res = append(res, dtos.ProdukDetailResponse{
+			ID:       v.ID.Hex(),
 			Name:     v.Name,
 			Slug:     v.Slug,
 			Detail:   v.Detail,

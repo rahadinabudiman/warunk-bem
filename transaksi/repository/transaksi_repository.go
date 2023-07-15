@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"sort"
 	"warunk-bem/domain"
 	"warunk-bem/mongo"
 
@@ -81,6 +82,11 @@ func (tr *transaksiRepository) FindAllByUserId(ctx context.Context, id string) (
 	if err != nil {
 		return transaksis, err
 	}
+
+	// Sorting transaksis dari yang terbaru hingga terlama
+	sort.Slice(transaksis, func(i, j int) bool {
+		return transaksis[i].CreatedAt.After(transaksis[j].CreatedAt)
+	})
 
 	return transaksis, nil
 }

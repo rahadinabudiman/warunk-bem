@@ -38,6 +38,20 @@ func (r *produkRepository) InsertOne(ctx context.Context, req *domain.Produk) (*
 	return req, nil
 }
 
+func (r *produkRepository) FindSlug(ctx context.Context, slug string) (*domain.Produk, error) {
+	var (
+		produk domain.Produk
+		err    error
+	)
+
+	err = r.Collection.FindOne(ctx, bson.M{"slug": slug}).Decode(&produk)
+	if err != nil {
+		return nil, err
+	}
+
+	return &produk, nil
+}
+
 func (r *produkRepository) FindOne(ctx context.Context, id string) (*domain.Produk, error) {
 	var (
 		produk domain.Produk

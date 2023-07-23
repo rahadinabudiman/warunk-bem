@@ -39,6 +39,14 @@ func (pu *produkUsecase) InsertOne(c context.Context, req *dtos.InsertProdukRequ
 	slug := helpers.CreateSlug(req.Name)
 	imageUrl := url
 
+	// Check Slug apakah sudah ada atau belum
+	checkSlug, err := pu.ProdukRepo.FindSlug(ctx, slug)
+	if err == nil {
+		if checkSlug.Slug == slug {
+			slug = slug + "-" + helpers.RandomString(3)
+		}
+	}
+
 	CreateProduk := &domain.Produk{
 		ID:        req.ID,
 		CreatedAt: req.CreatedAt,

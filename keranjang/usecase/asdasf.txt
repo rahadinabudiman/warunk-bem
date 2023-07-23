@@ -88,14 +88,14 @@ func (ku *KeranjangUsecase) FindOne(ctx context.Context, id string) (*domain.Ins
 	return res, nil
 }
 
-func (ku *KeranjangUsecase) RemoveProduct(ctx context.Context, keranjangID string, productID string) (*domain.DeleteProductKeranjangResponse, error) {
+func (ku *KeranjangUsecase) RemoveProduct(ctx context.Context, keranjangID string, productID string) (*domain.Keranjang, error) {
 	ctx, cancel := context.WithTimeout(ctx, ku.contextTimeout)
 	defer cancel()
 
 	// Check Keranjang apakah ada atau tidak
-	result, err := ku.KeranjangRepo.FindOneKeranjang(ctx, keranjangID)
+	result, err := ku.KeranjangRepo.FindOne(ctx, keranjangID)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("keranjang tidak ditemukan")
 	}
 
 	// Check Produk apakah ada atau tidak
@@ -105,47 +105,28 @@ func (ku *KeranjangUsecase) RemoveProduct(ctx context.Context, keranjangID strin
 	}
 
 	// Check apakah produk ada di keranjang atau tidak
-	var index = -1
+	var index int
 	for i, v := range result.Produk {
-		if v.ID.Hex() == produk.ID.Hex() {
+		if v.ID == produk.ID {
 			index = i
-			break
 		}
 	}
 
 	// Jika produk tidak ada di keranjang
-	if index == -1 {
+	if index == 0 {
 		return nil, errors.New("produk tidak ada di keranjang")
 	}
 
-	result.Total -= int(result.Produk[index].Stock)
-	_, err = ku.KeranjangRepo.UpdateOneKeranjang(ctx, result, keranjangID)
+	// Jika produk ada di keranjang
+	result.Produk = append(result.Produk[:index], result.Produk[index+1:]...)
+	result.Total -= int(produk.Stock)
+
+	_, err = ku.KeranjangRepo.UpdateOne(ctx, result, keranjangID)
 	if err != nil {
-		return nil, errors.New("tidak dapat mengupdate total produk")
+		return nil, err
 	}
 
-	err = ku.KeranjangRepo.RemoveProduct(ctx, keranjangID, productID)
-	if err != nil {
-		return nil, errors.New("produk tidak ditemukan")
-	}
-
-	check, err := ku.KeranjangRepo.FindOneKeranjang(ctx, keranjangID)
-	if err != nil {
-		return nil, errors.New("tidak ada keranjang dengan id tersebut")
-	}
-
-	if len(check.Produk) == 0 {
-		err = ku.KeranjangRepo.DeleteOne(ctx, keranjangID)
-		if err != nil {
-			return nil, errors.New("tidak dapat menghapus keranjang")
-		}
-	}
-
-	res := &domain.DeleteProductKeranjangResponse{
-		Name: produk.Name,
-	}
-
-	return res, nil
+	return result, nil
 }
 
 func (ku *KeranjangUsecase) UpdateOne(ctx context.Context, id string, req *domain.Keranjang) (*domain.Keranjang, error) {

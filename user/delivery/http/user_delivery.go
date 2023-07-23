@@ -33,6 +33,7 @@ func NewUserHandler(router *gin.RouterGroup, protected *gin.RouterGroup, protect
 	api.POST("/activation", handler.VerifyAccount)
 	protected.POST("/verify", handler.VerifyLogin)
 	protected.GET("/:id", handler.FindOne)
+	protected.GET("/profile", handler.Profile)
 	protectedAdmin.GET("", handler.GetAll)
 	protected.PUT("/:id", handler.UpdateOne)
 	protected.DELETE("/:id", handler.DeleteOne)
@@ -98,6 +99,48 @@ func (user *UserHandler) InsertOne(c *gin.Context) {
 	}
 
 	// message := "We sent an email with a verification code to " + result.Email
+	c.JSON(
+		http.StatusOK,
+		dtos.NewResponse(
+			http.StatusOK,
+			"Success",
+			result,
+		),
+	)
+}
+
+func (user *UserHandler) Profile(c *gin.Context) {
+	dataUser, err := middlewares.IsUser(c)
+	if err != nil {
+		c.JSON(
+			http.StatusUnauthorized,
+			dtos.NewErrorResponse(
+				http.StatusUnauthorized,
+				"Please login first",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+
+	ctx := c.Request.Context()
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	result, err := user.UsrUsecase.FindOne(ctx, dataUser)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dtos.NewErrorResponse(
+				http.StatusBadRequest,
+				"Cannot Find Data",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+
 	c.JSON(
 		http.StatusOK,
 		dtos.NewResponse(

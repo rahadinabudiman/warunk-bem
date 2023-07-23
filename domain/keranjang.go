@@ -26,6 +26,15 @@ type InsertKeranjangRequest struct {
 	Total     int                `json:"total"`
 }
 
+type DeleteProductKeranjangRequest struct {
+	KeranjangID string `json:"keranjang_id"`
+	ProdukID    string `json:"produk_id"`
+}
+
+type DeleteProductKeranjangResponse struct {
+	Name string `json:"name"`
+}
+
 type InsertKeranjangResponse struct {
 	ID     string   `json:"id"`
 	UserID string   `json:"user_id"`
@@ -39,6 +48,8 @@ type KeranjangRepository interface {
 	FindOneKeranjang(ctx context.Context, id string) (*Keranjang, error)
 	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]Keranjang, int64, error)
 	UpdateOne(ctx context.Context, keranjang *Keranjang, id string) (*Keranjang, error)
+	UpdateOneKeranjang(ctx context.Context, keranjang *Keranjang, id string) (*Keranjang, error)
+	RemoveProduct(ctx context.Context, keranjangID string, productID string) error
 	DeleteOne(ctx context.Context, id string) error
 }
 
@@ -46,6 +57,7 @@ type KeranjangUsecase interface {
 	InsertOne(ctx context.Context, req *InsertKeranjangRequest) (*InsertKeranjangResponse, error)
 	FindOne(ctx context.Context, id string) (*InsertKeranjangResponse, error)
 	UpdateOne(ctx context.Context, id string, req *Keranjang) (*Keranjang, error)
+	RemoveProduct(ctx context.Context, keranjangID string, productID string) (*DeleteProductKeranjangResponse, error)
 	// GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]dtos.InsertKeranjangResponse, int64, error)
 	// DeleteOne(ctx context.Context, id string) error
 }

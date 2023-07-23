@@ -131,6 +131,69 @@ func (kr *keranjangRepository) UpdateOne(ctx context.Context, keranjang *domain.
 	return keranjang, nil
 }
 
+func (kr *keranjangRepository) UpdateOneKeranjang(ctx context.Context, keranjang *domain.Keranjang, id string) (*domain.Keranjang, error) {
+	var err error
+
+	idHex, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return keranjang, err
+	}
+
+	filter := bson.M{"_id": idHex}
+	update := bson.M{"$set": keranjang}
+
+	_, err = kr.Collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return keranjang, err
+	}
+
+	err = kr.Collection.FindOne(ctx, bson.M{"_id": idHex}).Decode(keranjang)
+	if err != nil {
+		return keranjang, err
+	}
+	return keranjang, nil
+}
+
+func (kr *keranjangRepository) RemoveProduct(ctx context.Context, keranjangID string, productID string) error {
+	var (
+		keranjang *domain.Keranjang
+		err       error
+	)
+
+	keranjangObjectID, err := primitive.ObjectIDFromHex(keranjangID)
+	if err != nil {
+		return err
+	}
+
+	productObjectID, err := primitive.ObjectIDFromHex(productID)
+	if err != nil {
+		return err
+	}
+
+	// Cari Keranjang berdasarkan ID Keranjang
+	err = kr.Collection.FindOne(ctx, bson.M{"_id": keranjangObjectID}).Decode(&keranjang)
+	if err != nil {
+		return err
+	}
+
+	// Mencari data Produk di dalam Array Produk Keranjang
+	var updateProduk []domain.Produk
+	for _, p := range keranjang.Produk {
+		if p.ID != productObjectID {
+			updateProduk = append(updateProduk, p)
+		}
+	}
+
+	// Update Produk Array untuk menghapus data produk di keranjang
+	update := bson.M{"$set": bson.M{"produk": updateProduk}}
+	_, err = kr.Collection.UpdateOne(ctx, bson.M{"_id": keranjangObjectID}, update)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (kr *keranjangRepository) DeleteOne(ctx context.Context, id string) error {
 	var err error
 

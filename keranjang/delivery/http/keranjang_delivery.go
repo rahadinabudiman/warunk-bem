@@ -27,6 +27,7 @@ func NewKeranjangHandler(protected *gin.RouterGroup, protectedAdmin *gin.RouterG
 
 	protected.POST("", handler.InsertOne)
 	protected.GET("", handler.FindOne)
+	protected.POST("/deleteproduct", handler.RemoveProduct)
 }
 
 func isRequestValid(m *domain.InsertKeranjangRequest) (bool, error) {
@@ -215,6 +216,57 @@ func (tc *KeranjangHandler) FindOne(c *gin.Context) {
 		dtos.NewResponse(
 			http.StatusOK,
 			"Success",
+			res,
+		),
+	)
+}
+
+func (tc *KeranjangHandler) RemoveProduct(c *gin.Context) {
+	_, err := middlewares.IsUser(c)
+	if err != nil {
+		c.JSON(
+			http.StatusUnauthorized,
+			dtos.NewErrorResponse(
+				http.StatusUnauthorized,
+				"Unauthorized",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+
+	var keranjang domain.DeleteProductKeranjangRequest
+	err = c.ShouldBindJSON(&keranjang)
+	if err != nil {
+		c.JSON(
+			http.StatusUnprocessableEntity,
+			dtos.NewErrorResponse(
+				http.StatusUnprocessableEntity,
+				"Invalid request",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+
+	res, err := tc.KeranjangUsecase.RemoveProduct(c, keranjang.KeranjangID, keranjang.ProdukID)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dtos.NewErrorResponse(
+				http.StatusBadRequest,
+				"Invalid request",
+				dtos.GetErrorData(err),
+			),
+		)
+		return
+	}
+
+	c.JSON(
+		http.StatusOK,
+		dtos.NewResponse(
+			http.StatusOK,
+			"Produk berhasil dihapus",
 			res,
 		),
 	)

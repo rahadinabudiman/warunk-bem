@@ -9,8 +9,10 @@ import (
 	"warunk-bem/domain"
 	"warunk-bem/dtos"
 	"warunk-bem/helpers"
+	"warunk-bem/middlewares"
 	"warunk-bem/utils"
 
+	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -194,7 +196,7 @@ func (u *userUsecase) UpdateOne(c context.Context, req *dtos.UpdateUserRequest, 
 	return res, nil
 }
 
-func (u *userUsecase) VerifyLogin(c context.Context, verification int) (res dtos.VerifyLoginResponse, err error) {
+func (u *userUsecase) VerifyLogin(cgin *gin.Context, c context.Context, verification int) (res dtos.VerifyLoginResponse, err error) {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
@@ -214,8 +216,18 @@ func (u *userUsecase) VerifyLogin(c context.Context, verification int) (res dtos
 		return res, errors.New("cannot update user")
 	}
 
+	Role := req.Role
+
+	token, err := utils.GenerateToken(req.ID.Hex(), Role)
+	if err != nil {
+		return res, errors.New("something went wrong")
+	}
+
+	middlewares.CreateCookie(cgin, token)
+
 	res = dtos.VerifyLoginResponse{
 		Message: "Login success",
+		Token:   token,
 	}
 
 	return res, nil

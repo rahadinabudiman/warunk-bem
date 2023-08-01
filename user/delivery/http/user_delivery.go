@@ -413,7 +413,7 @@ func (user *UserHandler) VerifyLogin(c *gin.Context) {
 		ctx = context.Background()
 	}
 
-	result, err := user.UsrUsecase.VerifyLogin(ctx, req.Code)
+	result, err := user.UsrUsecase.VerifyLogin(c, ctx, req.Code)
 	if err != nil {
 		c.JSON(
 			http.StatusBadRequest,

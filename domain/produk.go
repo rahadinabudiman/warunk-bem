@@ -24,6 +24,7 @@ type Produk struct {
 type ProdukRepository interface {
 	InsertOne(ctx context.Context, req *Produk) (*Produk, error)
 	FindOne(ctx context.Context, id string) (*Produk, error)
+	FindSlug(ctx context.Context, slug string) (*Produk, error)
 	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]Produk, int64, error)
 	UpdateOne(ctx context.Context, produk *Produk, id string) (*Produk, error)
 	DeleteOne(ctx context.Context, id string) error

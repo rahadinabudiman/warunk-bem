@@ -15,4 +15,5 @@ type VerifyEmailResponse struct {
 
 type VerifyLoginResponse struct {
 	Message string `json:"message" form:"message" example:"Email has been verified"`
+	Token   string `json:"token" form:"token" example:"29eiekk10k3k3k"`
 }

@@ -10,6 +10,9 @@ import (
 	_dashboardHttp "warunk-bem/dashboard/delivery/http"
 	_dashboardRepo "warunk-bem/dashboard/repository"
 	_dashboardUcase "warunk-bem/dashboard/usecase"
+	_favoriteHttp "warunk-bem/favorite/delivery/http"
+	_favoriteRepo "warunk-bem/favorite/repository"
+	_favoriteUsecase "warunk-bem/favorite/usecase"
 	"warunk-bem/helpers"
 	_keranjangHttp "warunk-bem/keranjang/delivery/http"
 	_keranjangRepo "warunk-bem/keranjang/repository"
@@ -90,6 +93,10 @@ func main() {
 	DashboardRepository := _dashboardRepo.NewDashboardRepository(database)
 	DashboardUsecase := _dashboardUcase.NewDashboardUsecase(DashboardRepository, userRepo, userAmountRepo, ProdukRepository, TransaksiRepository, timeoutContext)
 	_dashboardHttp.NewDashboardHandler(protected, DashboardUsecase)
+
+	FavoriteRepository := _favoriteRepo.NewFavoriteRepository(database)
+	FavoriteUsecase := _favoriteUsecase.NewFavoriteUsecase(FavoriteRepository, ProdukRepository, userRepo, timeoutContext)
+	_favoriteHttp.NewFavoriteHandler(protected, protectedAdmin, FavoriteUsecase, ProdukUsecase)
 
 	UserAmountUsecase := _userAmountUsecase.NewUserAmountUsecase(userAmountRepo, userRepo, timeoutContext)
 	_userAmounthttp.NewUserAmountHandler(protectedAdmin, UserAmountUsecase)

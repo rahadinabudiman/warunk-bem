@@ -30,6 +30,9 @@ import (
 	_userAmounthttp "warunk-bem/user_amount/delivery/http"
 	_userAmountRepo "warunk-bem/user_amount/repository"
 	_userAmountUsecase "warunk-bem/user_amount/usecase"
+	_wishlistHttp "warunk-bem/wishlist/delivery/http"
+	_wishlistRepo "warunk-bem/wishlist/repository"
+	_wishlistUsecase "warunk-bem/wishlist/usecase"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -97,6 +100,10 @@ func main() {
 	FavoriteRepository := _favoriteRepo.NewFavoriteRepository(database)
 	FavoriteUsecase := _favoriteUsecase.NewFavoriteUsecase(FavoriteRepository, ProdukRepository, userRepo, timeoutContext)
 	_favoriteHttp.NewFavoriteHandler(protected, protectedAdmin, FavoriteUsecase, ProdukUsecase)
+
+	WishlistRepository := _wishlistRepo.NewWishlistRepository(database)
+	WishlistUsecase := _wishlistUsecase.NewWishlistUsecase(WishlistRepository, ProdukRepository, userRepo, timeoutContext)
+	_wishlistHttp.NewWishlistHandler(protected, protectedAdmin, WishlistUsecase, ProdukUsecase)
 
 	UserAmountUsecase := _userAmountUsecase.NewUserAmountUsecase(userAmountRepo, userRepo, timeoutContext)
 	_userAmounthttp.NewUserAmountHandler(protectedAdmin, UserAmountUsecase)

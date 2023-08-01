@@ -30,14 +30,44 @@ import (
 	_userAmounthttp "warunk-bem/user_amount/delivery/http"
 	_userAmountRepo "warunk-bem/user_amount/repository"
 	_userAmountUsecase "warunk-bem/user_amount/usecase"
+	_wishlistHttp "warunk-bem/wishlist/delivery/http"
+	_wishlistRepo "warunk-bem/wishlist/repository"
+	_wishlistUsecase "warunk-bem/wishlist/usecase"
+
+	docs "warunk-bem/docs"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title           Warunk BEM Documentation API
+// @version         1.0
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   r4ha
+// @contact.url    https://github.com/rahadinabudiman
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// localhost:8080/api/v1/swagger/index.html
+// localhost:8080
+
+// @host      localhost:8080
+// @BasePath  /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 	r := gin.Default()
+	docs.SwaggerInfo.BasePath = "/api/v1"
 	r.MaxMultipartMemory = 8 << 20
 	middlewares := middlewares.InitMiddleware()
 	middlewares.Log()
@@ -98,8 +128,14 @@ func main() {
 	FavoriteUsecase := _favoriteUsecase.NewFavoriteUsecase(FavoriteRepository, ProdukRepository, userRepo, timeoutContext)
 	_favoriteHttp.NewFavoriteHandler(protected, protectedAdmin, FavoriteUsecase, ProdukUsecase)
 
+	WishlistRepository := _wishlistRepo.NewWishlistRepository(database)
+	WishlistUsecase := _wishlistUsecase.NewWishlistUsecase(WishlistRepository, ProdukRepository, userRepo, timeoutContext)
+	_wishlistHttp.NewWishlistHandler(protected, protectedAdmin, WishlistUsecase, ProdukUsecase)
+
 	UserAmountUsecase := _userAmountUsecase.NewUserAmountUsecase(userAmountRepo, userRepo, timeoutContext)
 	_userAmounthttp.NewUserAmountHandler(protectedAdmin, UserAmountUsecase)
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))
 	log.Fatal(r.Run(appPort))

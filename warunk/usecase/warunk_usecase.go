@@ -31,14 +31,37 @@ func (fu *WarunkUsecase) InsertOne(ctx context.Context, req *domain.InsertWarunk
 	ctx, cancel := context.WithTimeout(ctx, fu.contextTimeout)
 	defer cancel()
 
-	produk, err := fu.ProdukRepo.FindOne(ctx, req.ProdukID)
-	if err != nil {
-		return nil, errors.New("produk not found")
+	checkWarung, _ := fu.WarunkRepo.FindOneByStatusAndDate(ctx, req.Status, time.Now().Format("2006-01-02"))
+	if checkWarung != nil {
+		return nil, errors.New("warunk already exist")
 	}
 
 	user, err := fu.UserRepo.FindOne(ctx, req.UserID)
 	if err != nil {
 		return nil, errors.New("user not found")
+	}
+
+	// Create an array of domain.Produk from the req.Produk
+	produks := make([]domain.Produk, 0, len(req.Produk))
+	for _, v := range req.Produk {
+		produk, err := fu.ProdukRepo.FindOne(ctx, v.ID.Hex())
+		if err != nil {
+			return nil, errors.New("produk not found")
+		}
+
+		// Create a new instance of domain.Produk and set its properties
+		newProduk := domain.Produk{
+			ID:       produk.ID,
+			Slug:     produk.Slug,
+			Name:     produk.Name,
+			Detail:   produk.Detail,
+			Price:    produk.Price,
+			Stock:    v.Stock,
+			Image:    produk.Image,
+			Category: produk.Category,
+		}
+
+		produks = append(produks, newProduk)
 	}
 
 	req.ID = primitive.NewObjectID()
@@ -50,22 +73,19 @@ func (fu *WarunkUsecase) InsertOne(ctx context.Context, req *domain.InsertWarunk
 		CreatedAt: req.CreatedAt,
 		UpdatedAt: req.UpdatedAt,
 		UserID:    user.ID,
-		Produk: []domain.Produk{
-			{
-				ID:       produk.ID,
-				Slug:     produk.Slug,
-				Name:     produk.Name,
-				Detail:   produk.Detail,
-				Price:    produk.Price,
-				Stock:    produk.Stock,
-				Image:    produk.Image,
-				Category: produk.Category,
-			},
-		},
+		Produk:    produks,
+		Status:    req.Status,
 	})
 
 	if err != nil {
 		return nil, errors.New("cannot add produk to Warunk")
+	}
+
+	res = &domain.InsertWarunkResponse{
+		ID:     req.ID.Hex(),
+		UserID: req.UserID,
+		Produk: produks,
+		Status: req.Status,
 	}
 
 	return res, nil

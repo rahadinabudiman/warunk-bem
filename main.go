@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
 	"time"
 	_authHttp "warunk-bem/auth/delivery/http"
 	_authUsecase "warunk-bem/auth/usecase"
@@ -90,12 +89,8 @@ func main() {
 		c.Next()
 	})
 
-	CONTEXT_TIMEOUT, err := helpers.GetEnvInt("CONTEXT_TIMEOUT")
-	if err != nil {
-		log.Fatal(err)
-	}
-	timeoutContext := time.Duration(CONTEXT_TIMEOUT) * time.Second
-	database := author.App.Mongo.Database(os.Getenv("MONGODB_NAME"))
+	timeoutContext := time.Duration(author.App.Config.GetInt("CONTEXT_TIMEOUT")) * time.Second
+	database := author.App.Mongo.Database(author.App.Config.GetString("MONGODB_NAME"))
 	userAmountRepo := _userAmountRepo.NewUserAmountRepository(database)
 
 	userRepo := _userRepo.NewUserRepository(database)
@@ -142,6 +137,6 @@ func main() {
 
 	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-	appPort := fmt.Sprintf(":%s", os.Getenv("SERVER_ADDRESS"))
+	appPort := fmt.Sprintf(":%s", author.App.Config.GetString("SERVER_ADDRESS"))
 	log.Fatal(r.Run(appPort))
 }

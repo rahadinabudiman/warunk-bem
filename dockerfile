@@ -1,26 +1,23 @@
-# Builder
-FROM golang:1.14.2-alpine3.11 as builder
+FROM golang:1.20-alpine
 
-RUN apk update && apk upgrade && \
-    apk --update add git make
+RUN apk update && apk add git
+
+RUN apk add --no-cache nginx
 
 WORKDIR /app
 
+COPY go.mod ./
+COPY go.sum ./
+
+RUN go mod download
+
+RUN go mod tidy
+
 COPY . .
 
-RUN make engine
+# Build aplikasi
+RUN go build -o main .
 
-# Distribution
-FROM alpine:latest
+# EXPOSE 443
 
-RUN apk update && apk upgrade && \
-    apk --update --no-cache add tzdata && \
-    mkdir /app 
-
-WORKDIR /app 
-
-EXPOSE 8080
-
-COPY --from=builder /app/engine /app
-
-CMD /app/engine
+CMD ["./main"]

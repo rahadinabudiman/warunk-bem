@@ -17,9 +17,16 @@ func InitMongoDatabase() mongo.Client {
 	dbUser := App.Config.GetString(`MONGODB_USER`)
 	dbPass := App.Config.GetString(`MONGODB_PASS`)
 	dbName := App.Config.GetString(`MONGODB_NAME`)
-	mongodbURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/?authMechanism=SCRAM-SHA-1&authSource=%s", dbUser, dbPass, dbHost, dbPort, dbName)
-	if dbUser == "" || dbPass == "" {
-		mongodbURI = fmt.Sprintf("mongodb://%s:%s/%s/", dbHost, dbPort, dbName)
+	MongoDBStatus := App.Config.GetString(`MONGODB_STATUS`)
+	MongoDBKey := App.Config.GetString(`MONGODB_KEY`)
+	mongodbURI := App.Config.GetString(`MONGODB_URI`)
+	if MongoDBStatus == MongoDBKey {
+		mongodbURI = App.Config.GetString(`MONGODB_URI`)
+	} else {
+		mongodbURI = fmt.Sprintf("mongodb://%s:%s@%s:%s/?authMechanism=SCRAM-SHA-1&authSource=%s", dbUser, dbPass, dbHost, dbPort, dbName)
+		if dbUser == "" || dbPass == "" {
+			mongodbURI = fmt.Sprintf("mongodb://%s:%s/%s/", dbHost, dbPort, dbName)
+		}
 	}
 
 	client, err := mongo.NewClient(mongodbURI)

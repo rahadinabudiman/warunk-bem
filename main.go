@@ -31,6 +31,9 @@ import (
 	_userAmounthttp "warunk-bem/user_amount/delivery/http"
 	_userAmountRepo "warunk-bem/user_amount/repository"
 	_userAmountUsecase "warunk-bem/user_amount/usecase"
+	_warunkHttp "warunk-bem/warunk/delivery/http"
+	_warunkRepo "warunk-bem/warunk/repository"
+	_warunktUsecase "warunk-bem/warunk/usecase"
 	_wishlistHttp "warunk-bem/wishlist/delivery/http"
 	_wishlistRepo "warunk-bem/wishlist/repository"
 	_wishlistUsecase "warunk-bem/wishlist/usecase"
@@ -141,6 +144,10 @@ func main() {
 	WishlistRepository := _wishlistRepo.NewWishlistRepository(database)
 	WishlistUsecase := _wishlistUsecase.NewWishlistUsecase(WishlistRepository, ProdukRepository, userRepo, timeoutContext)
 	_wishlistHttp.NewWishlistHandler(protected, protectedAdmin, WishlistUsecase, ProdukUsecase)
+
+	WarunkRepository := _warunkRepo.NewWarunkRepository(database)
+	WarunkUsecase := _warunktUsecase.NewWarunkUsecase(WarunkRepository, ProdukRepository, userRepo, timeoutContext)
+	_warunkHttp.NewWarunkHandler(protectedAdmin, WarunkUsecase, ProdukUsecase)
 
 	UserAmountUsecase := _userAmountUsecase.NewUserAmountUsecase(userAmountRepo, userRepo, timeoutContext)
 	_userAmounthttp.NewUserAmountHandler(protectedAdmin, UserAmountUsecase)

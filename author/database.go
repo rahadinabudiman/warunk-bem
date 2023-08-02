@@ -19,7 +19,6 @@ func InitMongoDatabase() mongo.Client {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	dbHost := os.Getenv(`MONGODB_HOST`)
 	dbPort := os.Getenv(`MONGODB_PORT`)
 	dbUser := os.Getenv(`MONGODB_USER`)
 	dbPass := os.Getenv(`MONGODB_PASS`)
@@ -30,6 +29,7 @@ func InitMongoDatabase() mongo.Client {
 	if MongoDBStatus == MongoDBKey {
 		mongodbURI = os.Getenv("MONGODB_URI")
 	} else {
+		dbHost := os.Getenv(`MONGODB_HOST_LOCAL`)
 		mongodbURI = fmt.Sprintf("mongodb://%s:%s@%s:%s/?authMechanism=SCRAM-SHA-1&authSource=%s", dbUser, dbPass, dbHost, dbPort, dbName)
 		if dbUser == "" || dbPass == "" {
 			mongodbURI = fmt.Sprintf("mongodb://%s:%s/%s/", dbHost, dbPort, dbName)

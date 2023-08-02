@@ -194,6 +194,34 @@ func (kr *WarunkRepository) RemoveProduct(ctx context.Context, WarunkID string, 
 	return nil
 }
 
+func (kr *WarunkRepository) FindOneByStatus(ctx context.Context, status string) (*domain.Warunk, error) {
+	var (
+		Warunk domain.Warunk
+		err    error
+	)
+
+	err = kr.Collection.FindOne(ctx, bson.M{"status": status}).Decode(&Warunk)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Warunk, nil
+}
+
+func (kr *WarunkRepository) FindOneByStatusAndDate(ctx context.Context, status string, date string) (*domain.Warunk, error) {
+	var (
+		Warunk *domain.Warunk
+		err    error
+	)
+
+	err = kr.Collection.FindOne(ctx, bson.M{"status": status, "created_at": date}).Decode(Warunk)
+	if err != nil {
+		return Warunk, err
+	}
+
+	return Warunk, nil
+}
+
 func (kr *WarunkRepository) DeleteOne(ctx context.Context, id string) error {
 	var err error
 

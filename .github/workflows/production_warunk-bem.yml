@@ -1,33 +1,23 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Deploy container app to Azure Web App - warunk-bem
-
+name: Deploy
 on:
   push:
     branches:
       - production
-  workflow_dispatch:
-
 jobs:
-  deploy:
+  build:
+    name: Build
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Log in to registry
-        uses: docker/login-action@v2
+      - name: pull-production-deploy
+        uses: appleboy/ssh-action@master
         with:
-          registry: https://index.docker.io/v1/
-          username: ${{ secrets.AzureAppService_ContainerUsername_355693dfd0434377916af1565af84638 }}
-          password: ${{ secrets.AzureAppService_ContainerPassword_f07a7f3cd1654109b44e5689adcc2347 }}
-
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: "warunk-bem"
-          slot-name: "production"
-          publish-profile: ${{ secrets.AzureAppService_PublishProfile_31edca1b2357476e8de803b00106c515 }}
-          images: "index.docker.io/${{secrets.AzureAppService_ContainerUsername_355693dfd0434377916af1565af84638}}/go_waruk-bem:80e2c12b3f84efdcbad2054ab8fbc93591a530f2"
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd warunk-bem
+            git pull origin production
+            docker image prune --force
+            docker system prune --all --volumes --force > /dev/null
+            docker-compose down && docker-compose up --build --force-recreate --no-deps -d

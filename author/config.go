@@ -2,22 +2,21 @@ package author
 
 import (
 	"log"
+	"os"
 
-	"github.com/spf13/viper"
+	"github.com/joho/godotenv"
 )
 
-func InitConfig() *viper.Viper {
-	config := viper.New()
-
-	config.SetConfigFile(`.env`)
-	err := config.ReadInConfig()
+func InitConfig() {
+	err := godotenv.Load()
 	if err != nil {
-		panic("Cannot find .env file")
+		log.Fatalf("err loading: %v", err)
 	}
 
-	if config.GetBool(`debug`) {
+	// Load individual environment variables using os.Getenv
+	debugMode := os.Getenv("debug")
+
+	if debugMode != "" && debugMode == "true" {
 		log.Println("Service RUN on DEBUG mode")
 	}
-
-	return config
 }

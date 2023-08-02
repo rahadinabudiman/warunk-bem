@@ -2,8 +2,6 @@ package author
 
 import (
 	"warunk-bem/mongo"
-
-	"github.com/spf13/viper"
 )
 
 var (
@@ -11,8 +9,7 @@ var (
 )
 
 type Application struct {
-	Config *viper.Viper
-	Mongo  mongo.Client
+	Mongo mongo.Client
 }
 
 func init() {
@@ -21,6 +18,5 @@ func init() {
 
 func AppInit() {
 	App = &Application{}
-	App.Config = InitConfig()
 	App.Mongo = InitMongoDatabase()
 }

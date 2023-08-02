@@ -40,6 +40,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/joho/godotenv"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -67,6 +68,10 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	r := gin.Default()
 	docs.SwaggerInfo.BasePath = "/api/v1"
 	r.MaxMultipartMemory = 8 << 20
@@ -110,8 +115,8 @@ func main() {
 
 	_userHttp.NewUserHandler(api, protected, protectedAdmin, usrUsecase)
 
-	loginUsecase := _authUsecase.NewAuthUsecase(userRepo, timeoutContext, author.App.Config)
-	_authHttp.NewAuthHandler(api, protected, loginUsecase, author.App.Config)
+	loginUsecase := _authUsecase.NewAuthUsecase(userRepo, timeoutContext)
+	_authHttp.NewAuthHandler(api, protected, loginUsecase)
 
 	ProdukRepository := _produkRepo.NewProdukRepository(database)
 	ProdukUsecase := _produkUsecase.NewProdukUsecase(ProdukRepository, userRepo, timeoutContext)

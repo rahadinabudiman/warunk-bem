@@ -9,18 +9,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/spf13/viper"
 )
 
 type AuthHandler struct {
 	AuthUsecase domain.AuthUsecase
-	Config      *viper.Viper
 }
 
-func NewAuthHandler(api *gin.RouterGroup, protected *gin.RouterGroup, lu domain.AuthUsecase, config *viper.Viper) {
+func NewAuthHandler(api *gin.RouterGroup, protected *gin.RouterGroup, lu domain.AuthUsecase) {
 	handler := &AuthHandler{
 		AuthUsecase: lu,
-		Config:      config,
 	}
 
 	api.POST("/login", handler.LoginUser)

@@ -12,21 +12,18 @@ import (
 	"warunk-bem/utils"
 
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type authUsecase struct {
 	UserRepository domain.UserRepository
 	contextTimeout time.Duration
-	Config         *viper.Viper
 }
 
-func NewAuthUsecase(us domain.UserRepository, t time.Duration, config *viper.Viper) domain.AuthUsecase {
+func NewAuthUsecase(us domain.UserRepository, t time.Duration) domain.AuthUsecase {
 	return &authUsecase{
 		UserRepository: us,
 		contextTimeout: t,
-		Config:         config,
 	}
 }
 

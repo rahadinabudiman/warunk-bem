@@ -4,24 +4,31 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 	"warunk-bem/mongo"
+
+	"github.com/joho/godotenv"
 )
 
 func InitMongoDatabase() mongo.Client {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	dbHost := App.Config.GetString(`MONGODB_HOST`)
-	dbPort := App.Config.GetString(`MONGODB_PORT`)
-	dbUser := App.Config.GetString(`MONGODB_USER`)
-	dbPass := App.Config.GetString(`MONGODB_PASS`)
-	dbName := App.Config.GetString(`MONGODB_NAME`)
-	MongoDBStatus := App.Config.GetString(`MONGODB_STATUS`)
-	MongoDBKey := App.Config.GetString(`MONGODB_KEY`)
-	mongodbURI := App.Config.GetString(`MONGODB_URI`)
+	dbHost := os.Getenv(`MONGODB_HOST`)
+	dbPort := os.Getenv(`MONGODB_PORT`)
+	dbUser := os.Getenv(`MONGODB_USER`)
+	dbPass := os.Getenv(`MONGODB_PASS`)
+	dbName := os.Getenv(`MONGODB_NAME`)
+	MongoDBStatus := os.Getenv(`MONGODB_STATUS`)
+	MongoDBKey := os.Getenv(`MONGODB_KEY`)
+	mongodbURI := os.Getenv(`MONGODB_URI`)
 	if MongoDBStatus == MongoDBKey {
-		mongodbURI = App.Config.GetString(`MONGODB_URI`)
+		mongodbURI = os.Getenv("MONGODB_URI")
 	} else {
 		mongodbURI = fmt.Sprintf("mongodb://%s:%s@%s:%s/?authMechanism=SCRAM-SHA-1&authSource=%s", dbUser, dbPass, dbHost, dbPort, dbName)
 		if dbUser == "" || dbPass == "" {

@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"warunk-bem/author"
 	"warunk-bem/domain"
 	"warunk-bem/helpers"
 
@@ -49,7 +48,7 @@ func SendEmail(user *domain.User, data *EmailData) {
 		log.Fatal("could not load config", err)
 	}
 
-	smtpPortStr := author.App.Config.GetString("SMTP_PORT")
+	smtpPortStr := os.Getenv("SMTP_PORT")
 	SMTPPortINT, err := strconv.Atoi(smtpPortStr)
 	if err != nil {
 		fmt.Printf("Failed to convert SMTP_PORT to integer: %s\n", err.Error())
@@ -57,12 +56,12 @@ func SendEmail(user *domain.User, data *EmailData) {
 	}
 
 	// Sender data.
-	from := author.App.Config.GetString("EMAIL_FROM")
-	smtpHost := author.App.Config.GetString("SMTP_HOST")
+	from := os.Getenv("EMAIL_FROM")
+	smtpHost := os.Getenv("SMTP_HOST")
 	smtpPort := SMTPPortINT
-	smtpPass := author.App.Config.GetString("SMTP_PASS")
-	smtpUser := author.App.Config.GetString("SMTP_USER")
-	fromName := author.App.Config.GetString("FROM_NAME")
+	smtpPass := os.Getenv("SMTP_PASS")
+	smtpUser := os.Getenv("SMTP_USER")
+	fromName := os.Getenv("FROM_NAME")
 	to := user.Email
 
 	var body bytes.Buffer

@@ -7,14 +7,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"warunk-bem/author"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
 func GenerateToken(user_id string, role string) (string, error) {
-	token_lifespan, err := strconv.ParseInt(author.App.Config.GetString("LIFETIME"), 10, 64)
+	token_lifespan, err := strconv.ParseInt(os.Getenv("LIFETIME"), 10, 64)
 	if err != nil {
 		token_lifespan = 60
 	}
@@ -32,7 +31,7 @@ func GenerateToken(user_id string, role string) (string, error) {
 	claims["exp"] = time.Now().Add(time.Hour * time.Duration(token_lifespan)).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	return token.SignedString([]byte(author.App.Config.GetString("SECRET_JWT")))
+	return token.SignedString([]byte(os.Getenv("SECRET_JWT")))
 }
 
 func TokenAdminValid(c *gin.Context) (string, error) {
@@ -41,7 +40,7 @@ func TokenAdminValid(c *gin.Context) (string, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(author.App.Config.GetString("SECRET_JWT")), nil
+		return []byte(os.Getenv("SECRET_JWT")), nil
 	})
 	if err != nil {
 		return "", err
@@ -71,7 +70,7 @@ func TokenValid(c *gin.Context) error {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(author.App.Config.GetString("SECRET_JWT")), nil
+		return []byte(os.Getenv("SECRET_JWT")), nil
 	})
 	if err != nil {
 		return err

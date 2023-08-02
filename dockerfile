@@ -6,6 +6,7 @@ RUN apk add --no-cache nginx
 
 WORKDIR /app
 
+COPY .env ./
 COPY go.mod ./
 COPY go.sum ./
 

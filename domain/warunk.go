@@ -22,7 +22,8 @@ type InsertWarunkRequest struct {
 	CreatedAt time.Time          `json:"created_at"`
 	UpdatedAt time.Time          `json:"updated_at"`
 	DeletedAt time.Time          `json:"deleted_at"`
-	UserID    primitive.ObjectID `json:"user_id"`
+	UserID    string             `json:"user_id"`
+	ProdukID  string             `json:"produk_id"`
 	Produk    []Produk           `json:"produk"`
 	Status    string             `json:"status"`
 }

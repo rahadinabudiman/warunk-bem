@@ -2,8 +2,8 @@ package middlewares
 
 import (
 	"errors"
+	"os"
 	"strings"
-	"warunk-bem/author"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -25,7 +25,7 @@ func IsUser(c *gin.Context) (string, error) {
 	jwtToken, err := jwt.Parse(tokenParts[1], func(token *jwt.Token) (interface{}, error) {
 		// Replace "your-secret-key" with the actual secret key used to sign the tokens
 		// You may need to retrieve the secret key from your configuration or environment variables
-		return []byte(author.App.Config.GetString("SECRET_JWT")), nil
+		return []byte(os.Getenv("SECRET_JWT")), nil
 	})
 	if err != nil {
 		return "", errors.New("invalid Token")
@@ -61,7 +61,7 @@ func IsAdmin(c *gin.Context) (string, error) {
 	jwtToken, err := jwt.Parse(tokenParts[1], func(token *jwt.Token) (interface{}, error) {
 		// Replace "your-secret-key" with the actual secret key used to sign the tokens
 		// You may need to retrieve the secret key from your configuration or environment variables
-		return []byte(author.App.Config.GetString("SECRET_JWT")), nil
+		return []byte(os.Getenv("SECRET_JWT")), nil
 	})
 	if err != nil {
 		return "", errors.New("invalid Token")

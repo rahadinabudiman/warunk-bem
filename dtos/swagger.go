@@ -75,6 +75,18 @@ type ProdukCreatedResponse struct {
 	Data       ProdukDetailResponse `json:"data"`
 }
 
+type FavoriteCreatedResponse struct {
+	StatusCode int                    `json:"status_code" example:"201"`
+	Message    string                 `json:"message" example:"Successfully registered"`
+	Data       DetailFavoriteResponse `json:"data"`
+}
+
+type DeleteProductFavoriteResponse struct {
+	StatusCode int                     `json:"status_code" example:"201"`
+	Message    string                  `json:"message" example:"Successfully deleted"`
+	Data       DelelteFavoriteResponse `json:"data"`
+}
+
 type ProdukOKResponse struct {
 	StatusCode int                  `json:"status_code" example:"200"`
 	Message    string               `json:"message" example:"Successfully"`

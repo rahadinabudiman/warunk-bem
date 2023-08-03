@@ -1,4 +1,352 @@
 basePath: /api/v1
+definitions:
+  dtos.ActivationAccountRequest:
+    properties:
+      code:
+        type: integer
+    type: object
+  dtos.BadRequestResponse:
+    properties:
+      errors: {}
+      message:
+        example: Bad Request
+        type: string
+      status_code:
+        example: 400
+        type: integer
+    type: object
+  dtos.DeleteUserRequest:
+    properties:
+      password:
+        example: rahadinabudimansundara
+        type: string
+    required:
+    - password
+    type: object
+  dtos.ForbiddenResponse:
+    properties:
+      errors: {}
+      message:
+        example: Forbidden
+        type: string
+      status_code:
+        example: 403
+        type: integer
+    type: object
+  dtos.GetAllUserResponse:
+    properties:
+      current_page:
+        type: integer
+      from:
+        type: integer
+      last_page:
+        type: integer
+      per_page:
+        type: integer
+      to:
+        type: integer
+      total:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/dtos.UserProfileResponse'
+        type: array
+    type: object
+  dtos.InsertProdukRequest:
+    type: object
+  dtos.InternalServerErrorResponse:
+    properties:
+      errors: {}
+      message:
+        example: Internal Server Error
+        type: string
+      status_code:
+        example: 500
+        type: integer
+    type: object
+  dtos.LoginStatusOKResponse:
+    properties:
+      message:
+        example: Login Success
+        type: string
+      status_code:
+        example: 200
+        type: integer
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        type: string
+      username:
+        example: r4ha
+        type: string
+    required:
+    - token
+    - username
+    type: object
+  dtos.LoginUserRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dtos.LogoutUserResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  dtos.NotFoundResponse:
+    properties:
+      errors: {}
+      message:
+        example: Not Found
+        type: string
+      status_code:
+        example: 404
+        type: integer
+    type: object
+  dtos.ProdukCreatedResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.ProdukDetailResponse'
+      message:
+        example: Successfully registered
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
+  dtos.ProdukDetailResponse:
+    properties:
+      category:
+        type: string
+      detail:
+        type: string
+      id:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      slug:
+        type: string
+      stock:
+        type: integer
+    type: object
+  dtos.ProdukOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.ProdukDetailResponse'
+      message:
+        example: Successfully
+        type: string
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.ProdukUpdateRequest:
+    properties:
+      category:
+        type: string
+      detail:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      stock:
+        type: integer
+    type: object
+  dtos.RegisterUserRequest:
+    properties:
+      created_at:
+        type: string
+      email:
+        example: me@r4ha.com
+        type: string
+      id:
+        type: string
+      name:
+        example: Rahadina Budiman Sundara
+        type: string
+      password:
+        example: rahadinabudimansundara
+        minLength: 6
+        type: string
+      passwordConfirm:
+        type: string
+      role:
+        example: Admin
+        type: string
+      updated_at:
+        type: string
+      username:
+        example: r4ha
+        type: string
+      verified:
+        example: false
+        type: boolean
+    required:
+    - email
+    - name
+    - username
+    type: object
+  dtos.StatusOKDeletedResponse:
+    properties:
+      errors: {}
+      message:
+        example: Successfully deleted
+        type: string
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.TopUpSaldoOKResponse:
+    properties:
+      amount:
+        example: 100000
+        type: number
+      message:
+        type: string
+      name:
+        type: string
+      status_code:
+        example: 200
+        type: integer
+    required:
+    - amount
+    type: object
+  dtos.TopUpSaldoRequest:
+    properties:
+      amount:
+        example: 100000
+        type: number
+      email:
+        type: string
+    required:
+    - amount
+    type: object
+  dtos.UnauthorizedResponse:
+    properties:
+      errors: {}
+      message:
+        example: Unauthorized
+        type: string
+      status_code:
+        example: 401
+        type: integer
+    type: object
+  dtos.UpdateUserRequest:
+    properties:
+      email:
+        example: me@r4ha.com
+        type: string
+      name:
+        example: Rahadina Budiman Sundara
+        type: string
+      username:
+        example: r4ha
+        type: string
+    required:
+    - email
+    - name
+    - username
+    type: object
+  dtos.UserCreeatedResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.UserDetailResponse'
+      message:
+        example: Successfully registered
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
+  dtos.UserDetailResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - name
+    - role
+    - username
+    type: object
+  dtos.UserProfileResponse:
+    properties:
+      email:
+        example: r4ha@proton.me
+        type: string
+      name:
+        example: Rahadina Budiman Sundara
+        type: string
+      username:
+        example: r4ha
+        type: string
+    type: object
+  dtos.UserStatusOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.UserDetailResponse'
+      message:
+        example: Successfully get user credentials
+        type: string
+      status_code:
+        example: 200
+        type: integer
+    type: object
+  dtos.VerifyEmailOKResponse:
+    properties:
+      message:
+        example: Email has been verified
+        type: string
+      status_code:
+        example: 200
+        type: integer
+      username:
+        example: r4ha
+        type: string
+    required:
+    - username
+    type: object
+  dtos.VerifyLoginOKResponse:
+    properties:
+      message:
+        example: Email has been verified
+        type: string
+      status_code:
+        example: 200
+        type: integer
+      token:
+        example: a82jask2jafk1l2kam
+        type: string
+    required:
+    - token
+    type: object
+  dtos.VerifyLoginRequest:
+    properties:
+      code:
+        type: integer
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -13,7 +361,623 @@ info:
   termsOfService: http://swagger.io/terms/
   title: Warunk BEM Documentation API
   version: "1.0"
-paths: {}
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login an account
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.LoginUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.LoginStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Login User with Username and Password
+      tags:
+      - User - Auth
+  /produk:
+    get:
+      consumes:
+      - application/json
+      description: Get All Produk
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.ProdukDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get All Produk
+      tags:
+      - Produk
+    post:
+      consumes:
+      - application/json
+      description: Add Produk
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.InsertProdukRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.ProdukCreatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add Produk
+      tags:
+      - Admin - Produk
+  /produk/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a Produk
+      parameters:
+      - description: ID Produk
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.StatusOKDeletedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a Produk
+      tags:
+      - Admin - Produk
+    get:
+      consumes:
+      - application/json
+      description: Get Produk by ID
+      parameters:
+      - description: ID Produk
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.ProdukOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Get Produk by ID
+      tags:
+      - Produk
+    put:
+      consumes:
+      - application/json
+      description: Update Produk
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.ProdukUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.ProdukOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update Produk
+      tags:
+      - Admin - Produk
+  /topup:
+    post:
+      consumes:
+      - application/json
+      description: Top up Saldo
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.TopUpSaldoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.TopUpSaldoOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Top up Saldo
+      tags:
+      - Admin - Transaction
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: Get all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.GetAllUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all users
+      tags:
+      - User - Account
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an User
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.DeleteUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.StatusOKDeletedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete an User
+      tags:
+      - User - Account
+    put:
+      consumes:
+      - application/json
+      description: User update an information
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.UserStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update Information
+      tags:
+      - User - Account
+  /user/activation:
+    post:
+      consumes:
+      - application/json
+      description: Verif an account
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.ActivationAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.VerifyEmailOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Verify Email by Verification Code
+      tags:
+      - User - Auth
+  /user/logout:
+    get:
+      consumes:
+      - application/json
+      description: Logout User
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.LogoutUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Logout User
+      tags:
+      - User - Auth
+  /user/profile:
+    get:
+      consumes:
+      - application/json
+      description: Get user Profile by ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.UserStatusOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user Profile BY ID
+      tags:
+      - User - Account
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: Register an account
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.RegisterUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.UserCreeatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      summary: Register User
+      tags:
+      - User - Auth
+  /user/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verif an account
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.VerifyLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.VerifyLoginOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Verify Login by Code
+      tags:
+      - User - Auth
 securityDefinitions:
   BearerAuth:
     in: header

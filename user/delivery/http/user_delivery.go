@@ -29,7 +29,7 @@ func NewUserHandler(router *gin.RouterGroup, protected *gin.RouterGroup, protect
 	protected = protected.Group("/user")
 	protectedAdmin = protectedAdmin.Group("/user")
 
-	api.POST("", handler.InsertOne)
+	api.POST("/register", handler.InsertOne)
 	api.POST("/activation", handler.VerifyAccount)
 	protected.POST("/verify", handler.VerifyLogin)
 	protected.GET("/:id", handler.FindOne)

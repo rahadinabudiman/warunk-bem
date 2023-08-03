@@ -26,6 +26,21 @@ func NewProdukUsecase(ProdukRepo domain.ProdukRepository, UserRepo domain.UserRe
 	}
 }
 
+// AddProduk godoc
+// @Summary      Add Produk
+// @Description  Add Produk
+// @Tags         Admin - Produk
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.InsertProdukRequest true "Payload Body [RAW]"
+// @Success      201 {object} dtos.ProdukCreatedResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /produk [post]
+// @Security BearerAuth
 func (pu *produkUsecase) InsertOne(c context.Context, req *dtos.InsertProdukRequest, url string) (*dtos.InsertProdukResponse, error) {
 	var res *dtos.InsertProdukResponse
 
@@ -78,6 +93,20 @@ func (pu *produkUsecase) InsertOne(c context.Context, req *dtos.InsertProdukRequ
 	return res, nil
 }
 
+// GetProdukByID godoc
+// @Summary      Get Produk by ID
+// @Description  Get Produk by ID
+// @Tags         Produk
+// @Accept       json
+// @Produce      json
+// @Param id path string true "ID Produk"
+// @Success      200 {object} dtos.ProdukOKResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /produk/{id} [get]
 func (pu *produkUsecase) FindOne(c context.Context, id string) (res *dtos.ProdukDetailResponse, err error) {
 	ctx, cancel := context.WithTimeout(c, pu.contextTimeout)
 	defer cancel()
@@ -101,6 +130,19 @@ func (pu *produkUsecase) FindOne(c context.Context, id string) (res *dtos.Produk
 	return res, nil
 }
 
+// GetAllProduk godoc
+// @Summary      Get All Produk
+// @Description  Get All Produk
+// @Tags         Produk
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} dtos.ProdukDetailResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /produk [get]
 func (pu *produkUsecase) GetAllWithPage(c context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]dtos.ProdukDetailResponse, int64, error) {
 	var res []dtos.ProdukDetailResponse
 
@@ -129,6 +171,21 @@ func (pu *produkUsecase) GetAllWithPage(c context.Context, rp int64, p int64, fi
 
 }
 
+// ProdukUpdate godoc
+// @Summary      Update Produk
+// @Description  Update Produk
+// @Tags         Admin - Produk
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.ProdukUpdateRequest true "Payload Body [RAW]"
+// @Success      200 {object} dtos.ProdukOKResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /produk/{id} [put]
+// @Security BearerAuth
 func (pu *produkUsecase) UpdateOne(c context.Context, req *dtos.ProdukUpdateRequest, id string) (*dtos.ProdukDetailResponse, error) {
 	var res *dtos.ProdukDetailResponse
 
@@ -167,6 +224,21 @@ func (pu *produkUsecase) UpdateOne(c context.Context, req *dtos.ProdukUpdateRequ
 	return res, nil
 }
 
+// DeleteProduk godoc
+// @Summary      Delete a Produk
+// @Description  Delete a Produk
+// @Tags         Admin - Produk
+// @Accept       json
+// @Produce      json
+// @Param id path integer true "ID Produk"
+// @Success      200 {object} dtos.StatusOKDeletedResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /produk/{id} [delete]
+// @Security BearerAuth
 func (pu *produkUsecase) DeleteOne(c context.Context, id string, idAdmin string, req dtos.DeleteProdukRequest) (res dtos.ResponseMessage, err error) {
 	ctx, cancel := context.WithTimeout(c, pu.contextTimeout)
 	defer cancel()

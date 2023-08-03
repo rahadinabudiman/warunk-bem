@@ -22,6 +22,21 @@ func NewUserAmountUsecase(ua domain.UserAmountRepository, u domain.UserRepositor
 	}
 }
 
+// UserLogin godoc
+// @Summary      Top up Saldo
+// @Description  Top up Saldo
+// @Tags         Admin - Transaction
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.TopUpSaldoRequest true "Payload Body [RAW]"
+// @Success      200 {object} dtos.TopUpSaldoOKResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /topup [post]
+// @Security BearerAuth
 func (uas *UserAmountUsecase) TopUpSaldo(ctx context.Context, req *dtos.TopUpSaldoRequest) (res *dtos.TopUpSaldoResponse, err error) {
 	var (
 		userAmount *domain.UserAmount

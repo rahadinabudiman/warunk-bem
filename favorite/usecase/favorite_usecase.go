@@ -25,6 +25,21 @@ func NewFavoriteUsecase(FavoriteRepo domain.FavoriteRepository, ProdukRepo domai
 	}
 }
 
+// AddFavorite godoc
+// @Summary      Add Favorite
+// @Description  Add Favorite
+// @Tags         User - Favorite
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.InsertFavoriteRequest true "Payload Body [RAW]"
+// @Success      201 {object} dtos.FavoriteCreatedResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /favorite [post]
+// @Security BearerAuth
 func (fu *FavoriteUsecase) InsertOne(ctx context.Context, req *domain.InsertFavoriteRequest) (*domain.InsertFavoriteResponse, error) {
 	var res *domain.InsertFavoriteResponse
 
@@ -113,6 +128,21 @@ func (fu *FavoriteUsecase) UpdateOne(ctx context.Context, id string, req *domain
 	return result, nil
 }
 
+// RemoveProduct godoc
+// @Summary      Remove Product from Favorite
+// @Description  Remove Product from Favorite
+// @Tags         User - Favorite
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.DeleteFavoriteRequest true "Payload Body [RAW]"
+// @Success      200 {object} dtos.DeleteProductFavoriteResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /favorite/deleteproduct [post]
+// @Security BearerAuth
 func (fu *FavoriteUsecase) RemoveProduct(ctx context.Context, favoriteID string, productID string) (*domain.DeleteProductFavoriteResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, fu.contextTimeout)
 	defer cancel()

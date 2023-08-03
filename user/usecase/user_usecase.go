@@ -31,6 +31,20 @@ func NewUserUsecase(u domain.UserRepository, ua domain.UserAmountRepository, to 
 	}
 }
 
+// UserRegister godoc
+// @Summary      Register User
+// @Description  Register an account
+// @Tags         User - Auth
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.RegisterUserRequest true "Payload Body [RAW]"
+// @Success      201 {object} dtos.UserCreeatedResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /user/register [post]
 func (u *userUsecase) InsertOne(c context.Context, req *dtos.RegisterUserRequest) (*dtos.RegisterUserResponseVerification, error) {
 	var res *dtos.RegisterUserResponseVerification
 
@@ -126,6 +140,20 @@ func (u *userUsecase) InsertOne(c context.Context, req *dtos.RegisterUserRequest
 	return res, nil
 }
 
+// GetUserByID godoc
+// @Summary      Get user Profile BY ID
+// @Description  Get user Profile by ID
+// @Tags         User - Account
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} dtos.UserStatusOKResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /user/profile [get]
+// @Security BearerAuth
 func (u *userUsecase) FindOne(c context.Context, id string) (res *dtos.UserProfileResponse, err error) {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
@@ -144,6 +172,20 @@ func (u *userUsecase) FindOne(c context.Context, id string) (res *dtos.UserProfi
 	return res, nil
 }
 
+// GetAllUsers godoc
+// @Summary      Get all users
+// @Description  Get all users
+// @Tags         User - Account
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} dtos.GetAllUserResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /user [get]
+// @Security BearerAuth
 func (u *userUsecase) GetAllWithPage(c context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]dtos.UserProfileResponse, int64, error) {
 	var res []dtos.UserProfileResponse
 
@@ -166,6 +208,21 @@ func (u *userUsecase) GetAllWithPage(c context.Context, rp int64, p int64, filte
 	return res, count, nil
 }
 
+// UserUpdate godoc
+// @Summary      Update Information
+// @Description  User update an information
+// @Tags         User - Account
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.UpdateUserRequest true "Payload Body [RAW]"
+// @Success      200 {object} dtos.UserStatusOKResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /user/{id} [put]
+// @Security BearerAuth
 func (u *userUsecase) UpdateOne(c context.Context, req *dtos.UpdateUserRequest, id string) (*dtos.UpdateUserResponse, error) {
 	var (
 		res *dtos.UpdateUserResponse
@@ -196,6 +253,21 @@ func (u *userUsecase) UpdateOne(c context.Context, req *dtos.UpdateUserRequest, 
 	return res, nil
 }
 
+// UserVerify godoc
+// @Summary      Verify Login by Code
+// @Description  Verif an account
+// @Tags         User - Auth
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.VerifyLoginRequest true "Payload Body [RAW]"
+// @Success      200 {object} dtos.VerifyLoginOKResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /user/verify [post]
+// @Security BearerAuth
 func (u *userUsecase) VerifyLogin(cgin *gin.Context, c context.Context, verification int) (res dtos.VerifyLoginResponse, err error) {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
@@ -233,6 +305,20 @@ func (u *userUsecase) VerifyLogin(cgin *gin.Context, c context.Context, verifica
 	return res, nil
 }
 
+// UserVerify godoc
+// @Summary      Verify Email by Verification Code
+// @Description  Verif an account
+// @Tags         User - Auth
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.ActivationAccountRequest true "Payload Body [RAW]"
+// @Success      200 {object} dtos.VerifyEmailOKResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /user/activation [post]
 func (u *userUsecase) VerifyAccount(c context.Context, activation int) (res dtos.VerifyEmailResponse, err error) {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
@@ -271,6 +357,21 @@ func (u *userUsecase) VerifyAccount(c context.Context, activation int) (res dtos
 	return res, nil
 }
 
+// DeleteUser godoc
+// @Summary      Delete an User
+// @Description  Delete an User
+// @Tags         User - Account
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.DeleteUserRequest true "Payload Body [RAW]"
+// @Success      200 {object} dtos.StatusOKDeletedResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /user/{id} [delete]
+// @Security BearerAuth
 func (u *userUsecase) DeleteOne(c context.Context, id string, req dtos.DeleteUserRequest) (res dtos.ResponseMessage, err error) {
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()

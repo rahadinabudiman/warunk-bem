@@ -1,6 +1,10 @@
 package dtos
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type RegisterUserResponse struct {
 	Name     string `json:"name" example:"Rahadina Budiman Sundara"`
@@ -22,6 +26,16 @@ type UserProfileResponse struct {
 	Name     string `json:"name" example:"Rahadina Budiman Sundara"`
 	Username string `json:"username" example:"r4ha"`
 	Email    string `json:"email" example:"r4ha@proton.me"`
+}
+
+type UserDetailResponse struct {
+	ID        primitive.ObjectID `bson:"_id" json:"id"`
+	CreatedAt time.Time          `bson:"created_at" json:"created_at"`
+	UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
+	Name      string             `bson:"name" json:"name" validate:"required"`
+	Email     string             `bson:"email" json:"email" validate:"required"`
+	Username  string             `bson:"username" json:"username" validate:"required"`
+	Role      string             `bson:"role" json:"role" validate:"required"`
 }
 
 type GetAllUserResponse struct {

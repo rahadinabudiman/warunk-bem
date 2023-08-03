@@ -27,6 +27,20 @@ func NewAuthUsecase(us domain.UserRepository, t time.Duration) domain.AuthUsecas
 	}
 }
 
+// UserLogin godoc
+// @Summary      Login User with Username and Password
+// @Description  Login an account
+// @Tags         User - Auth
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.LoginUserRequest true "Payload Body [RAW]"
+// @Success      200 {object} dtos.LoginStatusOKResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /login [post]
 func (u *authUsecase) LoginUser(c *gin.Context, ctx context.Context, req *dtos.LoginUserRequest) (*dtos.LoginUserResponse, error) {
 	var res *dtos.LoginUserResponse
 	ctx, cancel := context.WithTimeout(ctx, u.contextTimeout)
@@ -97,6 +111,20 @@ func (u *authUsecase) LoginUser(c *gin.Context, ctx context.Context, req *dtos.L
 	return res, nil
 }
 
+// LogoutUser godoc
+// @Summary      Logout User
+// @Description  Logout User
+// @Tags         User - Auth
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} dtos.LogoutUserResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /user/logout [get]
+// @Security BearerAuth
 func (u *authUsecase) LogoutUser(c *gin.Context) (res *dtos.LogoutUserResponse, err error) {
 	err = middlewares.DeleteCookie(c)
 	if err != nil {

@@ -15,6 +15,29 @@ definitions:
         example: 400
         type: integer
     type: object
+  dtos.DelelteFavoriteResponse:
+    properties:
+      name:
+        type: string
+    type: object
+  dtos.DeleteFavoriteRequest:
+    properties:
+      id:
+        type: string
+      product_id:
+        type: string
+    type: object
+  dtos.DeleteProductFavoriteResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.DelelteFavoriteResponse'
+      message:
+        example: Successfully deleted
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
   dtos.DeleteUserRequest:
     properties:
       password:
@@ -22,6 +45,30 @@ definitions:
         type: string
     required:
     - password
+    type: object
+  dtos.DetailFavoriteResponse:
+    properties:
+      id:
+        type: string
+      produk:
+        items:
+          $ref: '#/definitions/dtos.ProdukDetailResponse'
+        type: array
+      total:
+        type: integer
+      user_id:
+        type: string
+    type: object
+  dtos.FavoriteCreatedResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.DetailFavoriteResponse'
+      message:
+        example: Successfully registered
+        type: string
+      status_code:
+        example: 201
+        type: integer
     type: object
   dtos.ForbiddenResponse:
     properties:
@@ -51,6 +98,19 @@ definitions:
         items:
           $ref: '#/definitions/dtos.UserProfileResponse'
         type: array
+    type: object
+  dtos.InsertFavoriteRequest:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      produk_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
     type: object
   dtos.InsertProdukRequest:
     type: object
@@ -362,6 +422,94 @@ info:
   title: Warunk BEM Documentation API
   version: "1.0"
 paths:
+  /favorite:
+    post:
+      consumes:
+      - application/json
+      description: Add Favorite
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.InsertFavoriteRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.FavoriteCreatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add Favorite
+      tags:
+      - User - Favorite
+  /favorite/deleteproduct:
+    post:
+      consumes:
+      - application/json
+      description: Remove Product from Favorite
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.DeleteFavoriteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.DeleteProductFavoriteResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove Product from Favorite
+      tags:
+      - User - Favorite
   /login:
     post:
       consumes:

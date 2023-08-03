@@ -86,11 +86,9 @@ func main() {
 		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-		AllowOriginFunc: func(origin string) bool {
-			return origin == "https://keyzex.com"
-		},
-		MaxAge: 12 * time.Hour,
 	}))
+
+	r.Use(cors.Default())
 
 	cv := &helpers.CustomValidator{Validators: validator.New()}
 	r.Use(func(c *gin.Context) {

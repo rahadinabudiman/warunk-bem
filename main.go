@@ -58,10 +58,10 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// http://54.179.176.114:8080/api/v1/swagger/index.html
-// http://54.179.176.114:8080
+// 54.179.176.114:8080/api/v1/swagger/index.html
+// 54.179.176.114:8080
 
-// @host      http://54.179.176.114:8080
+// @host      54.179.176.114:8080
 // @BasePath  /api/v1
 
 // @securityDefinitions.apikey BearerAuth

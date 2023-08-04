@@ -81,10 +81,46 @@ type FavoriteCreatedResponse struct {
 	Data       DetailFavoriteResponse `json:"data"`
 }
 
+type WishlistCreatedResponse struct {
+	StatusCode int                    `json:"status_code" example:"201"`
+	Message    string                 `json:"message" example:"Successfully registered"`
+	Data       DetailWishlistResponse `json:"data"`
+}
+
+type FavoriteOKResponse struct {
+	StatusCode int                    `json:"status_code" example:"200"`
+	Message    string                 `json:"message" example:"Successfully registered"`
+	Data       DetailFavoriteResponse `json:"data"`
+}
+
+type FavoriteUpdatedResponse struct {
+	StatusCode int                    `json:"status_code" example:"200"`
+	Message    string                 `json:"message" example:"Successfully registered"`
+	Data       DetailFavoriteResponse `json:"data"`
+}
+
 type DeleteProductFavoriteResponse struct {
 	StatusCode int                     `json:"status_code" example:"201"`
 	Message    string                  `json:"message" example:"Successfully deleted"`
 	Data       DelelteFavoriteResponse `json:"data"`
+}
+
+type DeleteProductKeranjangResponse struct {
+	StatusCode int                    `json:"status_code" example:"201"`
+	Message    string                 `json:"message" example:"Successfully deleted"`
+	Data       DeleteProductKeranjang `json:"data"`
+}
+
+type KeranjangCreatedResponse struct {
+	StatusCode int             `json:"status_code" example:"201"`
+	Message    string          `json:"message" example:"Successfully registered"`
+	Data       DetailKeranjang `json:"data"`
+}
+
+type KeranjangOKResponse struct {
+	StatusCode int             `json:"status_code" example:"200"`
+	Message    string          `json:"message" example:"Successfully registered"`
+	Data       DetailKeranjang `json:"data"`
 }
 
 type ProdukOKResponse struct {

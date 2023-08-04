@@ -19,3 +19,12 @@ type InsertTransaksiKeranjangRequest struct {
 	ID     primitive.ObjectID `bson:"_id" json:"id"`
 	UserID primitive.ObjectID `bson:"user_id" json:"user_id"`
 }
+
+type GetTransaksiByUSerIDRequest struct {
+	UserID string `json:"user_id"`
+}
+
+type TransaksiRequest struct {
+	ProdukID string `json:"produk_id"`
+	Total    int    `json:"total"`
+}

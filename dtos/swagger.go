@@ -81,6 +81,18 @@ type FavoriteCreatedResponse struct {
 	Data       DetailFavoriteResponse `json:"data"`
 }
 
+type TransaksiCreatedResponse struct {
+	StatusCode int                     `json:"status_code" example:"201"`
+	Message    string                  `json:"message" example:"Successfully registered"`
+	Data       InsertTransaksiResponse `json:"data"`
+}
+
+type TransaksiAllByUserIDResponse struct {
+	StatusCode int                        `json:"status_code" example:"201"`
+	Message    string                     `json:"message" example:"Successfully registered"`
+	Data       []RiwayatTransaksiResponse `json:"data"`
+}
+
 type WishlistCreatedResponse struct {
 	StatusCode int                    `json:"status_code" example:"201"`
 	Message    string                 `json:"message" example:"Successfully registered"`

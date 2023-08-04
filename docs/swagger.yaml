@@ -38,6 +38,29 @@ definitions:
         example: 201
         type: integer
     type: object
+  dtos.DeleteProductKeranjang:
+    properties:
+      name:
+        type: string
+    type: object
+  dtos.DeleteProductKeranjangRequest:
+    properties:
+      keranjang_id:
+        type: string
+      produk_id:
+        type: string
+    type: object
+  dtos.DeleteProductKeranjangResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.DeleteProductKeranjang'
+      message:
+        example: Successfully deleted
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
   dtos.DeleteUserRequest:
     properties:
       password:
@@ -59,6 +82,30 @@ definitions:
       user_id:
         type: string
     type: object
+  dtos.DetailKeranjang:
+    properties:
+      id:
+        type: string
+      produk:
+        $ref: '#/definitions/dtos.ProdukDetailResponse'
+      total:
+        type: integer
+      user_id:
+        type: string
+    type: object
+  dtos.DetailWishlistResponse:
+    properties:
+      id:
+        type: string
+      produk:
+        items:
+          $ref: '#/definitions/dtos.ProdukDetailResponse'
+        type: array
+      total:
+        type: integer
+      user_id:
+        type: string
+    type: object
   dtos.FavoriteCreatedResponse:
     properties:
       data:
@@ -68,6 +115,17 @@ definitions:
         type: string
       status_code:
         example: 201
+        type: integer
+    type: object
+  dtos.FavoriteOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.DetailFavoriteResponse'
+      message:
+        example: Successfully registered
+        type: string
+      status_code:
+        example: 200
         type: integer
     type: object
   dtos.ForbiddenResponse:
@@ -112,7 +170,27 @@ definitions:
       user_id:
         type: string
     type: object
+  dtos.InsertKeranjangRequest:
+    properties:
+      produk_id:
+        type: string
+      total:
+        type: integer
+    type: object
   dtos.InsertProdukRequest:
+    type: object
+  dtos.InsertWishlistRequest:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      produk_id:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
     type: object
   dtos.InternalServerErrorResponse:
     properties:
@@ -122,6 +200,17 @@ definitions:
         type: string
       status_code:
         example: 500
+        type: integer
+    type: object
+  dtos.KeranjangOKResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.DetailKeranjang'
+      message:
+        example: Successfully registered
+        type: string
+      status_code:
+        example: 200
         type: integer
     type: object
   dtos.LoginStatusOKResponse:
@@ -407,6 +496,17 @@ definitions:
       code:
         type: integer
     type: object
+  dtos.WishlistCreatedResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.DetailWishlistResponse'
+      message:
+        example: Successfully registered
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -423,6 +523,42 @@ info:
   version: "1.0"
 paths:
   /favorite:
+    get:
+      consumes:
+      - application/json
+      description: Get Favorite by UserID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.FavoriteOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Favorite by UserID
+      tags:
+      - User - Favorite
     post:
       consumes:
       - application/json
@@ -510,6 +646,130 @@ paths:
       summary: Remove Product from Favorite
       tags:
       - User - Favorite
+  /keranjang:
+    get:
+      consumes:
+      - application/json
+      description: Get Keranjang by UserID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.KeranjangOKResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get Keranjang by UserID
+      tags:
+      - User - Keranjang
+    post:
+      consumes:
+      - application/json
+      description: Add Keranjang
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.InsertKeranjangRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.DetailKeranjang'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add Keranjang
+      tags:
+      - User - Keranjang
+  /keranjang/deleteproduct:
+    post:
+      consumes:
+      - application/json
+      description: Remove Product from Keranjang
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.DeleteProductKeranjangRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dtos.DeleteProductKeranjangResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove Product from Keranjang
+      tags:
+      - User - Keranjang
   /login:
     post:
       consumes:
@@ -1126,6 +1386,50 @@ paths:
       summary: Verify Login by Code
       tags:
       - User - Auth
+  /wishlist:
+    post:
+      consumes:
+      - application/json
+      description: Add Wishlist
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.InsertWishlistRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.WishlistCreatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add Wishlist
+      tags:
+      - User - Wishlist
 securityDefinitions:
   BearerAuth:
     in: header

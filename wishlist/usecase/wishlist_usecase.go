@@ -25,6 +25,21 @@ func NewWishlistUsecase(WishlistRepo domain.WishlistRepository, ProdukRepo domai
 	}
 }
 
+// AddWishlist godoc
+// @Summary      Add Wishlist
+// @Description  Add Wishlist
+// @Tags         User - Wishlist
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.InsertWishlistRequest true "Payload Body [RAW]"
+// @Success      201 {object} dtos.WishlistCreatedResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /wishlist [post]
+// @Security BearerAuth
 func (fu *WishlistUsecase) InsertOne(ctx context.Context, req *domain.InsertWishlistRequest) (*domain.InsertWishlistResponse, error) {
 	var res *domain.InsertWishlistResponse
 

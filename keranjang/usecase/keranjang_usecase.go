@@ -25,6 +25,21 @@ func NewKeranjangUsecase(KeranjangRepo domain.KeranjangRepository, ProdukRepo do
 	}
 }
 
+// AddKeranjang godoc
+// @Summary      Add Keranjang
+// @Description  Add Keranjang
+// @Tags         User - Keranjang
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.InsertKeranjangRequest true "Payload Body [RAW]"
+// @Success      201 {object} dtos.DetailKeranjang
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /keranjang [post]
+// @Security BearerAuth
 func (ku *KeranjangUsecase) InsertOne(ctx context.Context, req *domain.InsertKeranjangRequest) (*domain.InsertKeranjangResponse, error) {
 	var res *domain.InsertKeranjangResponse
 
@@ -70,6 +85,20 @@ func (ku *KeranjangUsecase) InsertOne(ctx context.Context, req *domain.InsertKer
 	return res, nil
 }
 
+// GetKeranjang godoc
+// @Summary      Get Keranjang by UserID
+// @Description  Get Keranjang by UserID
+// @Tags         User - Keranjang
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} dtos.KeranjangOKResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /keranjang [get]
+// @Security BearerAuth
 func (ku *KeranjangUsecase) FindOne(ctx context.Context, id string) (*domain.InsertKeranjangResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, ku.contextTimeout)
 	defer cancel()
@@ -88,6 +117,21 @@ func (ku *KeranjangUsecase) FindOne(ctx context.Context, id string) (*domain.Ins
 	return res, nil
 }
 
+// RemoveProduct godoc
+// @Summary      Remove Product from Keranjang
+// @Description  Remove Product from Keranjang
+// @Tags         User - Keranjang
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.DeleteProductKeranjangRequest true "Payload Body [RAW]"
+// @Success      200 {object} dtos.DeleteProductKeranjangResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /keranjang/deleteproduct [post]
+// @Security BearerAuth
 func (ku *KeranjangUsecase) RemoveProduct(ctx context.Context, keranjangID string, productID string) (*domain.DeleteProductKeranjangResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, ku.contextTimeout)
 	defer cancel()

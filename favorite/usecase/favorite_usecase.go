@@ -84,6 +84,20 @@ func (fu *FavoriteUsecase) InsertOne(ctx context.Context, req *domain.InsertFavo
 	return res, nil
 }
 
+// GetFavorite godoc
+// @Summary      Get Favorite by UserID
+// @Description  Get Favorite by UserID
+// @Tags         User - Favorite
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} dtos.FavoriteOKResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /favorite [get]
+// @Security BearerAuth
 func (fu *FavoriteUsecase) FindOne(ctx context.Context, id string) (*domain.InsertFavoriteResponse, error) {
 	ctx, cancel := context.WithTimeout(ctx, fu.contextTimeout)
 	defer cancel()

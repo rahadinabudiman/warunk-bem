@@ -1,11 +1,14 @@
 package dtos
 
+
 import "time"
+
 
 type DeleteFavoriteRequest struct {
 	ID        string `json:"id"`
 	ProductID string `json:"product_id"`
 }
+
 
 type InsertFavoriteRequest struct {
 	ID        string    `bson:"_id" json:"id"`
@@ -19,6 +22,7 @@ type UpdateFavoriteRequest struct {
 	ID     string               `bson:"_id" json:"id"`
 	Produk ProdukDetailResponse `json:"produk"`
 }
+
 
 type DetailFavoriteResponse struct {
 	ID     string                 `json:"id"`

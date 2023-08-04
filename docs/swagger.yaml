@@ -179,6 +179,22 @@ definitions:
     type: object
   dtos.InsertProdukRequest:
     type: object
+  dtos.InsertTransaksiKeranjangRequest:
+    properties:
+      id:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dtos.InsertTransaksiResponse:
+    properties:
+      name:
+        type: string
+      produk_name:
+        type: string
+      total:
+        type: integer
+    type: object
   dtos.InsertWishlistRequest:
     properties:
       created_at:
@@ -346,6 +362,21 @@ definitions:
     - name
     - username
     type: object
+  dtos.RiwayatTransaksiResponse:
+    properties:
+      created_at:
+        type: string
+      harga:
+        type: integer
+      image:
+        type: string
+      name:
+        type: string
+      total:
+        type: integer
+      waktu:
+        type: string
+    type: object
   dtos.StatusOKDeletedResponse:
     properties:
       errors: {}
@@ -380,6 +411,37 @@ definitions:
         type: string
     required:
     - amount
+    type: object
+  dtos.TransaksiAllByUserIDResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/dtos.RiwayatTransaksiResponse'
+        type: array
+      message:
+        example: Successfully registered
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
+  dtos.TransaksiCreatedResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dtos.InsertTransaksiResponse'
+      message:
+        example: Successfully registered
+        type: string
+      status_code:
+        example: 201
+        type: integer
+    type: object
+  dtos.TransaksiRequest:
+    properties:
+      produk_id:
+        type: string
+      total:
+        type: integer
     type: object
   dtos.UnauthorizedResponse:
     properties:
@@ -657,7 +719,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dtos.KeranjangOKResponse'
+            $ref: '#/definitions/dtos.TransaksiAllByUserIDResponse'
         "400":
           description: Bad Request
           schema:
@@ -1060,6 +1122,94 @@ paths:
       summary: Top up Saldo
       tags:
       - Admin - Transaction
+  /transaksi:
+    post:
+      consumes:
+      - application/json
+      description: Add Transaksi
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.TransaksiRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.TransaksiCreatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add Transaksi
+      tags:
+      - User - Transaksi
+  /transaksi/keranjang:
+    post:
+      consumes:
+      - application/json
+      description: Add Transaksi By Keranjang
+      parameters:
+      - description: Payload Body [RAW]
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.InsertTransaksiKeranjangRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.TransaksiCreatedResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dtos.BadRequestResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dtos.UnauthorizedResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/dtos.ForbiddenResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dtos.NotFoundResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dtos.InternalServerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add Transaksi By Keranjang
+      tags:
+      - User - Transaksi
   /user:
     get:
       consumes:

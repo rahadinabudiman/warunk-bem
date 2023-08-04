@@ -31,6 +31,20 @@ func NewTransaksiUsecase(TransaksiRepo domain.TransaksiRepository, KeranjangRepo
 	}
 }
 
+// GetKeranjang godoc
+// @Summary      Get Keranjang by UserID
+// @Description  Get Keranjang by UserID
+// @Tags         User - Keranjang
+// @Accept       json
+// @Produce      json
+// @Success      200 {object} dtos.TransaksiAllByUserIDResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /keranjang [get]
+// @Security BearerAuth
 func (tu *TransaksiUsecase) FindAll(c context.Context, id string) (res []*dtos.RiwayatTransaksiResponse, err error) {
 	ctx, cancel := context.WithTimeout(c, tu.contextTimeout)
 	defer cancel()
@@ -63,6 +77,21 @@ func (tu *TransaksiUsecase) FindAll(c context.Context, id string) (res []*dtos.R
 	return res, nil
 }
 
+// AddTransaction godoc
+// @Summary      Add Transaksi
+// @Description  Add Transaksi
+// @Tags         User - Transaksi
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.TransaksiRequest true "Payload Body [RAW]"
+// @Success      201 {object} dtos.TransaksiCreatedResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /transaksi [post]
+// @Security BearerAuth
 func (tu *TransaksiUsecase) InsertOne(ctx context.Context, req *dtos.InsertTransaksiRequest) (*dtos.InsertTransaksiResponse, error) {
 	var res *dtos.InsertTransaksiResponse
 
@@ -147,6 +176,21 @@ func (tu *TransaksiUsecase) InsertOne(ctx context.Context, req *dtos.InsertTrans
 	return res, nil
 }
 
+// AddTransaction godoc
+// @Summary      Add Transaksi By Keranjang
+// @Description  Add Transaksi By Keranjang
+// @Tags         User - Transaksi
+// @Accept       json
+// @Produce      json
+// @Param        request body dtos.InsertTransaksiKeranjangRequest true "Payload Body [RAW]"
+// @Success      201 {object} dtos.TransaksiCreatedResponse
+// @Failure      400 {object} dtos.BadRequestResponse
+// @Failure      401 {object} dtos.UnauthorizedResponse
+// @Failure      403 {object} dtos.ForbiddenResponse
+// @Failure      404 {object} dtos.NotFoundResponse
+// @Failure      500 {object} dtos.InternalServerErrorResponse
+// @Router       /transaksi/keranjang [post]
+// @Security BearerAuth
 func (tu *TransaksiUsecase) InsertByKeranjang(ctx context.Context, req *dtos.InsertTransaksiKeranjangRequest) (*dtos.InsertTransaksiResponse, error) {
 	var res *dtos.InsertTransaksiResponse
 

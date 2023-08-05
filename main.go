@@ -124,7 +124,7 @@ func main() {
 	_authHttp.NewAuthHandler(api, protected, loginUsecase)
 
 	ProdukRepository := _produkRepo.NewProdukRepository(database)
-	ProdukUsecase := _produkUsecase.NewProdukUsecase(ProdukRepository, userRepo, timeoutContext)
+	ProdukUsecase := _produkUsecase.NewProdukUsecase(ProdukRepository, userRepo, redisclient, timeoutContext)
 	_produkHttp.NewProdukHandler(api, protectedAdmin, ProdukUsecase)
 
 	KeranjangRepository := _keranjangRepo.NewKeranjangRepository(database)
@@ -156,10 +156,8 @@ func main() {
 
 	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	api.GET("/healthchecker", func(ctx *gin.Context) {
-		// Get a new context for this request
 		requestCtx := ctx.Request.Context()
 
-		// Use the Redis client in this handler
 		value, err := redisclient.Get(requestCtx, "test").Result()
 		if err == redis.Nil {
 			fmt.Println("key: test does not exist")

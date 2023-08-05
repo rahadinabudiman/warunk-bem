@@ -22,11 +22,11 @@ type ProdukDetailResponse struct {
 }
 
 type GetAllProdukResponse struct {
-	Total       int64                  `json:"total"`
-	PerPage     int64                  `json:"per_page"`
-	CurrentPage int64                  `json:"current_page"`
-	LastPage    int64                  `json:"last_page"`
-	From        int64                  `json:"from"`
-	To          int64                  `json:"to"`
-	Produk      []ProdukDetailResponse `json:"produks"`
+	Total       int64                   `json:"total"`
+	PerPage     int64                   `json:"per_page"`
+	CurrentPage int64                   `json:"current_page"`
+	LastPage    int64                   `json:"last_page"`
+	From        int64                   `json:"from"`
+	To          int64                   `json:"to"`
+	Produk      []*ProdukDetailResponse `json:"produks"`
 }

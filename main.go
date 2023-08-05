@@ -109,7 +109,7 @@ func main() {
 	userAmountRepo := _userAmountRepo.NewUserAmountRepository(database)
 
 	userRepo := _userRepo.NewUserRepository(database)
-	usrUsecase := _userUcase.NewUserUsecase(userRepo, userAmountRepo, timeoutContext)
+	usrUsecase := _userUcase.NewUserUsecase(userRepo, userAmountRepo, redisclient, timeoutContext)
 
 	// Main Routes API
 	api := r.Group("/api/v1")
@@ -120,7 +120,7 @@ func main() {
 
 	_userHttp.NewUserHandler(api, protected, protectedAdmin, usrUsecase)
 
-	loginUsecase := _authUsecase.NewAuthUsecase(userRepo, timeoutContext)
+	loginUsecase := _authUsecase.NewAuthUsecase(userRepo, redisclient, timeoutContext)
 	_authHttp.NewAuthHandler(api, protected, loginUsecase)
 
 	ProdukRepository := _produkRepo.NewProdukRepository(database)
@@ -128,30 +128,30 @@ func main() {
 	_produkHttp.NewProdukHandler(api, protectedAdmin, ProdukUsecase)
 
 	KeranjangRepository := _keranjangRepo.NewKeranjangRepository(database)
-	KeranjangUsecase := _keranjangUcase.NewKeranjangUsecase(KeranjangRepository, ProdukRepository, userRepo, timeoutContext)
+	KeranjangUsecase := _keranjangUcase.NewKeranjangUsecase(KeranjangRepository, ProdukRepository, userRepo, redisclient, timeoutContext)
 	_keranjangHttp.NewKeranjangHandler(protected, protectedAdmin, KeranjangUsecase, ProdukUsecase)
 
 	TransaksiRepository := _transaksiRepo.NewTransaksiRepository(database)
-	TransaksiUsecase := _transaksiUsecase.NewTransaksiUsecase(TransaksiRepository, KeranjangRepository, ProdukRepository, userRepo, userAmountRepo, timeoutContext)
+	TransaksiUsecase := _transaksiUsecase.NewTransaksiUsecase(TransaksiRepository, KeranjangRepository, ProdukRepository, userRepo, userAmountRepo, redisclient, timeoutContext)
 	_transaksihttp.NewUserHandler(protected, protectedAdmin, TransaksiUsecase)
 
 	DashboardRepository := _dashboardRepo.NewDashboardRepository(database)
-	DashboardUsecase := _dashboardUcase.NewDashboardUsecase(DashboardRepository, userRepo, userAmountRepo, ProdukRepository, TransaksiRepository, timeoutContext)
+	DashboardUsecase := _dashboardUcase.NewDashboardUsecase(DashboardRepository, userRepo, userAmountRepo, ProdukRepository, TransaksiRepository, redisclient, timeoutContext)
 	_dashboardHttp.NewDashboardHandler(protected, DashboardUsecase)
 
 	FavoriteRepository := _favoriteRepo.NewFavoriteRepository(database)
-	FavoriteUsecase := _favoriteUsecase.NewFavoriteUsecase(FavoriteRepository, ProdukRepository, userRepo, timeoutContext)
+	FavoriteUsecase := _favoriteUsecase.NewFavoriteUsecase(FavoriteRepository, ProdukRepository, userRepo, redisclient, timeoutContext)
 	_favoriteHttp.NewFavoriteHandler(protected, protectedAdmin, FavoriteUsecase, ProdukUsecase)
 
 	WishlistRepository := _wishlistRepo.NewWishlistRepository(database)
-	WishlistUsecase := _wishlistUsecase.NewWishlistUsecase(WishlistRepository, ProdukRepository, userRepo, timeoutContext)
+	WishlistUsecase := _wishlistUsecase.NewWishlistUsecase(WishlistRepository, ProdukRepository, userRepo, redisclient, timeoutContext)
 	_wishlistHttp.NewWishlistHandler(protected, protectedAdmin, WishlistUsecase, ProdukUsecase)
 
 	WarunkRepository := _warunkRepo.NewWarunkRepository(database)
-	WarunkUsecase := _warunktUsecase.NewWarunkUsecase(WarunkRepository, ProdukRepository, userRepo, timeoutContext)
+	WarunkUsecase := _warunktUsecase.NewWarunkUsecase(WarunkRepository, ProdukRepository, userRepo, redisclient, timeoutContext)
 	_warunkHttp.NewWarunkHandler(protectedAdmin, WarunkUsecase, ProdukUsecase)
 
-	UserAmountUsecase := _userAmountUsecase.NewUserAmountUsecase(userAmountRepo, userRepo, timeoutContext)
+	UserAmountUsecase := _userAmountUsecase.NewUserAmountUsecase(userAmountRepo, userRepo, redisclient, timeoutContext)
 	_userAmounthttp.NewUserAmountHandler(protectedAdmin, UserAmountUsecase)
 
 	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))

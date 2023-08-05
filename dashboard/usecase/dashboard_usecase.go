@@ -5,6 +5,8 @@ import (
 	"errors"
 	"time"
 	"warunk-bem/domain"
+
+	"github.com/go-redis/redis/v8"
 )
 
 type dashboardUsecase struct {
@@ -13,16 +15,18 @@ type dashboardUsecase struct {
 	UserAmountRepo domain.UserAmountRepository
 	ProdukRepo     domain.ProdukRepository
 	TransaksiRepo  domain.TransaksiRepository
+	RedisClient    *redis.Client
 	contextTimeout time.Duration
 }
 
-func NewDashboardUsecase(DashboardRepo domain.DashboardRepository, UserRepo domain.UserRepository, UserAmountRepo domain.UserAmountRepository, ProdukRepo domain.ProdukRepository, TransaksiRepo domain.TransaksiRepository, contextTimeout time.Duration) domain.DashboardUsecase {
+func NewDashboardUsecase(DashboardRepo domain.DashboardRepository, UserRepo domain.UserRepository, UserAmountRepo domain.UserAmountRepository, ProdukRepo domain.ProdukRepository, TransaksiRepo domain.TransaksiRepository, RedisClient *redis.Client, contextTimeout time.Duration) domain.DashboardUsecase {
 	return &dashboardUsecase{
 		DashboardRepo:  DashboardRepo,
 		UserRepo:       UserRepo,
 		UserAmountRepo: UserAmountRepo,
 		ProdukRepo:     ProdukRepo,
 		TransaksiRepo:  TransaksiRepo,
+		RedisClient:    RedisClient,
 		contextTimeout: contextTimeout,
 	}
 }

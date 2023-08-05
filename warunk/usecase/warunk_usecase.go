@@ -6,6 +6,7 @@ import (
 	"time"
 	"warunk-bem/domain"
 
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -13,14 +14,16 @@ type WarunkUsecase struct {
 	WarunkRepo     domain.WarunkRepository
 	ProdukRepo     domain.ProdukRepository
 	UserRepo       domain.UserRepository
+	RedisClient    *redis.Client
 	contextTimeout time.Duration
 }
 
-func NewWarunkUsecase(WarunkRepo domain.WarunkRepository, ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, contextTimeout time.Duration) domain.WarunkUsecase {
+func NewWarunkUsecase(WarunkRepo domain.WarunkRepository, ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, RedisClient *redis.Client, contextTimeout time.Duration) domain.WarunkUsecase {
 	return &WarunkUsecase{
 		WarunkRepo:     WarunkRepo,
 		ProdukRepo:     ProdukRepo,
 		UserRepo:       UserRepo,
+		RedisClient:    RedisClient,
 		contextTimeout: contextTimeout,
 	}
 }

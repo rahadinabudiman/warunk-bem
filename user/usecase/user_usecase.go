@@ -13,6 +13,7 @@ import (
 	"warunk-bem/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -20,13 +21,15 @@ import (
 type userUsecase struct {
 	userRepo       domain.UserRepository
 	UserAmountRepo domain.UserAmountRepository
+	RedisClient    *redis.Client
 	contextTimeout time.Duration
 }
 
-func NewUserUsecase(u domain.UserRepository, ua domain.UserAmountRepository, to time.Duration) domain.UserUsecase {
+func NewUserUsecase(u domain.UserRepository, ua domain.UserAmountRepository, RedisClient *redis.Client, to time.Duration) domain.UserUsecase {
 	return &userUsecase{
 		userRepo:       u,
 		UserAmountRepo: ua,
+		RedisClient:    RedisClient,
 		contextTimeout: to,
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"time"
 	"warunk-bem/domain"
 
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -13,14 +14,16 @@ type WishlistUsecase struct {
 	WishlistRepo   domain.WishlistRepository
 	ProdukRepo     domain.ProdukRepository
 	UserRepo       domain.UserRepository
+	RedisClient    *redis.Client
 	contextTimeout time.Duration
 }
 
-func NewWishlistUsecase(WishlistRepo domain.WishlistRepository, ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, contextTimeout time.Duration) domain.WishlistUsecase {
+func NewWishlistUsecase(WishlistRepo domain.WishlistRepository, ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, RedisClient *redis.Client, contextTimeout time.Duration) domain.WishlistUsecase {
 	return &WishlistUsecase{
 		WishlistRepo:   WishlistRepo,
 		ProdukRepo:     ProdukRepo,
 		UserRepo:       UserRepo,
+		RedisClient:    RedisClient,
 		contextTimeout: contextTimeout,
 	}
 }

@@ -23,21 +23,40 @@ func InitRedisClient() *redis.Client {
 		log.Fatal("Error loading .env file")
 	}
 
-	redisclient = redis.NewClient(&redis.Options{
-		Addr: os.Getenv("REDIS_URL"),
-	})
+	if os.Getenv("REDIS_STATUS") == os.Getenv("REDIS_KEY") {
+		redisURL := os.Getenv("REDIS_URL_CLOUD")
+		redisOptions, err := redis.ParseURL(redisURL)
+		if err != nil {
+			panic(err)
+		}
 
-	if _, err := redisclient.Ping(ctx).Result(); err != nil {
-		panic(err)
+		redisclient = redis.NewClient(redisOptions)
+
+		err = redisclient.Ping(ctx).Err()
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println("Redis client connected successfully...")
+
+		return redisclient
+	} else {
+		redisclient = redis.NewClient(&redis.Options{
+			Addr: os.Getenv("REDIS_URL"),
+		})
+
+		if _, err := redisclient.Ping(ctx).Result(); err != nil {
+			panic(err)
+		}
+
+		err = redisclient.Set(ctx, "test", "Welcome to Golang with Redis and MongoDB",
+			0).Err()
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println("Redis client connected successfully...")
+
+		return redisclient
 	}
-
-	err = redisclient.Set(ctx, "test", "Welcome to Golang with Redis and MongoDB",
-		0).Err()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println("Redis client connected successfully...")
-
-	return redisclient
 }

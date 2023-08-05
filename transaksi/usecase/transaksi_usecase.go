@@ -8,6 +8,7 @@ import (
 	"warunk-bem/domain"
 	"warunk-bem/dtos"
 
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -17,16 +18,18 @@ type TransaksiUsecase struct {
 	ProdukRepo     domain.ProdukRepository
 	UserRepo       domain.UserRepository
 	UserAmountRepo domain.UserAmountRepository
+	RedisClient    *redis.Client
 	contextTimeout time.Duration
 }
 
-func NewTransaksiUsecase(TransaksiRepo domain.TransaksiRepository, KeranjangRepo domain.KeranjangRepository, ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, UserAmountRepo domain.UserAmountRepository, contextTimeout time.Duration) domain.TransaksiUsecase {
+func NewTransaksiUsecase(TransaksiRepo domain.TransaksiRepository, KeranjangRepo domain.KeranjangRepository, ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, UserAmountRepo domain.UserAmountRepository, RedisClient *redis.Client, contextTimeout time.Duration) domain.TransaksiUsecase {
 	return &TransaksiUsecase{
 		TransaksiRepo:  TransaksiRepo,
 		KeranjangRepo:  KeranjangRepo,
 		ProdukRepo:     ProdukRepo,
 		UserRepo:       UserRepo,
 		UserAmountRepo: UserAmountRepo,
+		RedisClient:    RedisClient,
 		contextTimeout: contextTimeout,
 	}
 }

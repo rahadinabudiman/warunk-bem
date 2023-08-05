@@ -6,6 +6,7 @@ import (
 	"time"
 	"warunk-bem/domain"
 
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -13,14 +14,16 @@ type FavoriteUsecase struct {
 	FavoriteRepo   domain.FavoriteRepository
 	ProdukRepo     domain.ProdukRepository
 	UserRepo       domain.UserRepository
+	RedisClient    *redis.Client
 	contextTimeout time.Duration
 }
 
-func NewFavoriteUsecase(FavoriteRepo domain.FavoriteRepository, ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, contextTimeout time.Duration) domain.FavoriteUsecase {
+func NewFavoriteUsecase(FavoriteRepo domain.FavoriteRepository, ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, RedisClient *redis.Client, contextTimeout time.Duration) domain.FavoriteUsecase {
 	return &FavoriteUsecase{
 		FavoriteRepo:   FavoriteRepo,
 		ProdukRepo:     ProdukRepo,
 		UserRepo:       UserRepo,
+		RedisClient:    RedisClient,
 		contextTimeout: contextTimeout,
 	}
 }

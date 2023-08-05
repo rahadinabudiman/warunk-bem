@@ -12,17 +12,20 @@ import (
 	"warunk-bem/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type authUsecase struct {
 	UserRepository domain.UserRepository
+	RedisClient    *redis.Client
 	contextTimeout time.Duration
 }
 
-func NewAuthUsecase(us domain.UserRepository, t time.Duration) domain.AuthUsecase {
+func NewAuthUsecase(us domain.UserRepository, RedisClient *redis.Client, t time.Duration) domain.AuthUsecase {
 	return &authUsecase{
 		UserRepository: us,
+		RedisClient:    RedisClient,
 		contextTimeout: t,
 	}
 }

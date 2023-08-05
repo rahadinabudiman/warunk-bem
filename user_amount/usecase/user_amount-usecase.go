@@ -6,18 +6,22 @@ import (
 	"time"
 	"warunk-bem/domain"
 	"warunk-bem/dtos"
+
+	"github.com/go-redis/redis/v8"
 )
 
 type UserAmountUsecase struct {
 	UserAmountRepo domain.UserAmountRepository
 	UserRepo       domain.UserRepository
+	RedisClient    *redis.Client
 	contextTimeout time.Duration
 }
 
-func NewUserAmountUsecase(ua domain.UserAmountRepository, u domain.UserRepository, timeout time.Duration) domain.UserAmountUsecase {
+func NewUserAmountUsecase(ua domain.UserAmountRepository, u domain.UserRepository, RedisClient *redis.Client, timeout time.Duration) domain.UserAmountUsecase {
 	return &UserAmountUsecase{
 		UserAmountRepo: ua,
 		UserRepo:       u,
+		RedisClient:    RedisClient,
 		contextTimeout: timeout,
 	}
 }

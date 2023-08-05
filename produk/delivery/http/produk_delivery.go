@@ -47,7 +47,7 @@ func isRequestValid(m *dtos.InsertProdukRequest) (bool, error) {
 
 func (cp *ProdukHandler) GetAllWithPage(c *gin.Context) {
 	var (
-		res   []dtos.ProdukDetailResponse
+		res   []*dtos.ProdukDetailResponse
 		count int64
 	)
 

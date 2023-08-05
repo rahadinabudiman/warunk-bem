@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 	_authHttp "warunk-bem/auth/delivery/http"
@@ -43,6 +44,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -100,6 +102,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	redisclient := author.InitRedisClient()
+
 	timeoutContext := time.Duration(CONTEXT_TIMEOUT) * time.Second
 	database := author.App.Mongo.Database(os.Getenv("MONGODB_NAME"))
 	userAmountRepo := _userAmountRepo.NewUserAmountRepository(database)
@@ -120,7 +124,7 @@ func main() {
 	_authHttp.NewAuthHandler(api, protected, loginUsecase)
 
 	ProdukRepository := _produkRepo.NewProdukRepository(database)
-	ProdukUsecase := _produkUsecase.NewProdukUsecase(ProdukRepository, userRepo, timeoutContext)
+	ProdukUsecase := _produkUsecase.NewProdukUsecase(ProdukRepository, userRepo, redisclient, timeoutContext)
 	_produkHttp.NewProdukHandler(api, protectedAdmin, ProdukUsecase)
 
 	KeranjangRepository := _keranjangRepo.NewKeranjangRepository(database)
@@ -151,6 +155,18 @@ func main() {
 	_userAmounthttp.NewUserAmountHandler(protectedAdmin, UserAmountUsecase)
 
 	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	api.GET("/healthchecker", func(ctx *gin.Context) {
+		requestCtx := ctx.Request.Context()
+
+		value, err := redisclient.Get(requestCtx, "test").Result()
+		if err == redis.Nil {
+			fmt.Println("key: test does not exist")
+		} else if err != nil {
+			panic(err)
+		}
+
+		ctx.JSON(http.StatusOK, gin.H{"status": "success", "message": value})
+	})
 
 	appPort := fmt.Sprintf(":%s", os.Getenv("SERVER_ADDRESS"))
 	log.Fatal(r.Run(appPort))

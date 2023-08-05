@@ -31,10 +31,10 @@ func NewTransaksiUsecase(TransaksiRepo domain.TransaksiRepository, KeranjangRepo
 	}
 }
 
-// GetKeranjang godoc
-// @Summary      Get Keranjang by UserID
-// @Description  Get Keranjang by UserID
-// @Tags         User - Keranjang
+// GetTransaksi godoc
+// @Summary      Get Transaksi by UserID
+// @Description  Get Transaksi by UserID
+// @Tags         User - Transaksi
 // @Accept       json
 // @Produce      json
 // @Success      200 {object} dtos.TransaksiAllByUserIDResponse
@@ -43,7 +43,7 @@ func NewTransaksiUsecase(TransaksiRepo domain.TransaksiRepository, KeranjangRepo
 // @Failure      403 {object} dtos.ForbiddenResponse
 // @Failure      404 {object} dtos.NotFoundResponse
 // @Failure      500 {object} dtos.InternalServerErrorResponse
-// @Router       /keranjang [get]
+// @Router       /transaksi [get]
 // @Security BearerAuth
 func (tu *TransaksiUsecase) FindAll(c context.Context, id string) (res []*dtos.RiwayatTransaksiResponse, err error) {
 	ctx, cancel := context.WithTimeout(c, tu.contextTimeout)

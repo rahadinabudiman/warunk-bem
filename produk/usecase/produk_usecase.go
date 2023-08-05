@@ -2,12 +2,14 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"time"
 	"warunk-bem/domain"
 	"warunk-bem/dtos"
 	"warunk-bem/helpers"
 
+	"github.com/go-redis/redis/v8"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -15,13 +17,15 @@ import (
 type produkUsecase struct {
 	ProdukRepo     domain.ProdukRepository
 	UserRepo       domain.UserRepository
+	RedisClient    *redis.Client
 	contextTimeout time.Duration
 }
 
-func NewProdukUsecase(ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, contextTimeout time.Duration) domain.ProdukUsecase {
+func NewProdukUsecase(ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, RedisClient *redis.Client, contextTimeout time.Duration) domain.ProdukUsecase {
 	return &produkUsecase{
 		ProdukRepo:     ProdukRepo,
 		UserRepo:       UserRepo,
+		RedisClient:    RedisClient,
 		contextTimeout: contextTimeout,
 	}
 }
@@ -108,6 +112,18 @@ func (pu *produkUsecase) InsertOne(c context.Context, req *dtos.InsertProdukRequ
 // @Failure      500 {object} dtos.InternalServerErrorResponse
 // @Router       /produk/{id} [get]
 func (pu *produkUsecase) FindOne(c context.Context, id string) (res *dtos.ProdukDetailResponse, err error) {
+	// Check if the result exists in Redis cache
+	cacheKey := "produk:" + id
+	val, err := pu.RedisClient.Get(c, cacheKey).Result()
+	if err == nil {
+		// Cache hit, unmarshal the cached value and return it
+		res = &dtos.ProdukDetailResponse{}
+		if err := json.Unmarshal([]byte(val), res); err != nil {
+			return nil, err
+		}
+		return res, nil
+	}
+
 	ctx, cancel := context.WithTimeout(c, pu.contextTimeout)
 	defer cancel()
 
@@ -127,6 +143,11 @@ func (pu *produkUsecase) FindOne(c context.Context, id string) (res *dtos.Produk
 		Image:    req.Image,
 	}
 
+	cacheValue, err := json.Marshal(res)
+	if err == nil {
+		pu.RedisClient.Set(c, cacheKey, cacheValue, 10*time.Minute)
+	}
+
 	return res, nil
 }
 
@@ -143,19 +164,31 @@ func (pu *produkUsecase) FindOne(c context.Context, id string) (res *dtos.Produk
 // @Failure      404 {object} dtos.NotFoundResponse
 // @Failure      500 {object} dtos.InternalServerErrorResponse
 // @Router       /produk [get]
-func (pu *produkUsecase) GetAllWithPage(c context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]dtos.ProdukDetailResponse, int64, error) {
-	var res []dtos.ProdukDetailResponse
+func (pu *produkUsecase) GetAllWithPage(c context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]*dtos.ProdukDetailResponse, int64, error) {
+	var (
+		res []*dtos.ProdukDetailResponse
+		err error
+	)
+
+	cacheKey := "produk"
+	val, err := pu.RedisClient.Get(c, cacheKey).Result()
+	if err == nil {
+		if err := json.Unmarshal([]byte(val), &res); err != nil {
+			return nil, 0, err
+		}
+		return res, int64(len(res)), nil
+	}
 
 	ctx, cancel := context.WithTimeout(c, pu.contextTimeout)
 	defer cancel()
 
 	req, count, err := pu.ProdukRepo.GetAllWithPage(ctx, rp, p, filter, setsort)
 	if err != nil {
-		return res, count, err
+		return nil, count, err
 	}
 
 	for _, v := range req {
-		res = append(res, dtos.ProdukDetailResponse{
+		res = append(res, &dtos.ProdukDetailResponse{
 			ID:       v.ID.Hex(),
 			Name:     v.Name,
 			Slug:     v.Slug,
@@ -167,8 +200,12 @@ func (pu *produkUsecase) GetAllWithPage(c context.Context, rp int64, p int64, fi
 		})
 	}
 
-	return res, count, nil
+	cacheValue, err := json.Marshal(res)
+	if err == nil {
+		pu.RedisClient.Set(c, cacheKey, cacheValue, 10*time.Minute)
+	}
 
+	return res, count, nil
 }
 
 // ProdukUpdate godoc
@@ -219,6 +256,12 @@ func (pu *produkUsecase) UpdateOne(c context.Context, req *dtos.ProdukUpdateRequ
 		Stock:    resp.Stock,
 		Category: resp.Category,
 		Image:    resp.Image,
+	}
+
+	cacheKey := "produk:" + id
+	cacheValue, err := json.Marshal(res)
+	if err == nil {
+		pu.RedisClient.Set(c, cacheKey, cacheValue, 10*time.Minute)
 	}
 
 	return res, nil

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 	"warunk-bem/domain"
 	"warunk-bem/dtos"
@@ -94,6 +95,12 @@ func (pu *produkUsecase) InsertOne(c context.Context, req *dtos.InsertProdukRequ
 		Image:    createdProduk.Image,
 	}
 
+	cacheKey := "produk:" + CreateProduk.ID.Hex()
+	cacheValue, err := json.Marshal(CreateProduk)
+	if err == nil {
+		pu.RedisClient.Set(c, cacheKey, cacheValue, 10*time.Minute)
+	}
+
 	return res, nil
 }
 
@@ -117,6 +124,7 @@ func (pu *produkUsecase) FindOne(c context.Context, id string) (res *dtos.Produk
 	val, err := pu.RedisClient.Get(c, cacheKey).Result()
 	if err == nil {
 		// Cache hit, unmarshal the cached value and return it
+		fmt.Println("Cache hit")
 		res = &dtos.ProdukDetailResponse{}
 		if err := json.Unmarshal([]byte(val), res); err != nil {
 			return nil, err
@@ -143,6 +151,7 @@ func (pu *produkUsecase) FindOne(c context.Context, id string) (res *dtos.Produk
 		Image:    req.Image,
 	}
 
+	fmt.Println("Cache miss")
 	cacheValue, err := json.Marshal(res)
 	if err == nil {
 		pu.RedisClient.Set(c, cacheKey, cacheValue, 10*time.Minute)

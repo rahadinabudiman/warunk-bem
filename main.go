@@ -82,6 +82,7 @@ func main() {
 	r.MaxMultipartMemory = 8 << 20
 	middlewares := middlewares.InitMiddleware()
 	middlewares.Log()
+	r.Use(cors.Default())
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"*"},
@@ -89,8 +90,6 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
-
-	r.Use(cors.Default())
 
 	cv := &helpers.CustomValidator{Validators: validator.New()}
 	r.Use(func(c *gin.Context) {

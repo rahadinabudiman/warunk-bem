@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"strconv"
 	"strings"
@@ -230,6 +231,7 @@ func (u *userUsecase) UpdateOne(c context.Context, req *dtos.UpdateUserRequest, 
 	var (
 		res *dtos.UpdateUserResponse
 	)
+
 	ctx, cancel := context.WithTimeout(c, u.contextTimeout)
 	defer cancel()
 
@@ -251,6 +253,12 @@ func (u *userUsecase) UpdateOne(c context.Context, req *dtos.UpdateUserRequest, 
 		Name:     resp.Name,
 		Username: resp.Username,
 		Email:    resp.Email,
+	}
+
+	cacheKey := "user:" + id
+	cacheValue, err := json.Marshal(res)
+	if err == nil {
+		u.RedisClient.Set(ctx, cacheKey, cacheValue, 10*time.Minute)
 	}
 
 	return res, nil

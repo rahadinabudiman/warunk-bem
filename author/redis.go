@@ -32,7 +32,8 @@ func InitRedisClient() *redis.Client {
 
 		redisclient = redis.NewClient(redisOptions)
 
-		err = redisclient.Ping(ctx).Err()
+		err = redisclient.Set(ctx, "test", "Welcome to Warunk BEM with Redis and MongoDB",
+			0).Err()
 		if err != nil {
 			panic(err)
 		}
@@ -49,7 +50,7 @@ func InitRedisClient() *redis.Client {
 			panic(err)
 		}
 
-		err = redisclient.Set(ctx, "test", "Welcome to Golang with Redis and MongoDB",
+		err = redisclient.Set(ctx, "test", "Welcome to Warunk BEM with Redis and MongoDB",
 			0).Err()
 		if err != nil {
 			panic(err)

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"time"
 	"warunk-bem/domain"
@@ -84,6 +85,12 @@ func (fu *FavoriteUsecase) InsertOne(ctx context.Context, req *domain.InsertFavo
 		return nil, errors.New("cannot add produk to favorite")
 	}
 
+	cacheKey := "favorite:" + req.UserID
+	cacheValue, err := json.Marshal(res)
+	if err == nil {
+		fu.RedisClient.Set(ctx, cacheKey, cacheValue, 10*time.Minute)
+	}
+
 	return res, nil
 }
 
@@ -102,6 +109,18 @@ func (fu *FavoriteUsecase) InsertOne(ctx context.Context, req *domain.InsertFavo
 // @Router       /favorite [get]
 // @Security BearerAuth
 func (fu *FavoriteUsecase) FindOne(ctx context.Context, id string) (*domain.InsertFavoriteResponse, error) {
+	var res *domain.InsertFavoriteResponse
+
+	cacheKey := "favorite:" + id
+	cacheValue, err := fu.RedisClient.Get(ctx, cacheKey).Result()
+	if err == nil {
+		res = &domain.InsertFavoriteResponse{}
+		if err := json.Unmarshal([]byte(cacheValue), res); err != nil {
+			return nil, errors.New("cannot unmarshal cache value")
+		}
+		return res, nil
+	}
+
 	ctx, cancel := context.WithTimeout(ctx, fu.contextTimeout)
 	defer cancel()
 
@@ -110,10 +129,15 @@ func (fu *FavoriteUsecase) FindOne(ctx context.Context, id string) (*domain.Inse
 		return nil, errors.New("favorite not found")
 	}
 
-	res := &domain.InsertFavoriteResponse{
+	res = &domain.InsertFavoriteResponse{
 		ID:     favorite.ID.Hex(),
 		UserID: favorite.UserID.Hex(),
 		Produk: favorite.Produk,
+	}
+
+	cacheVal, err := json.Marshal(res)
+	if err == nil {
+		fu.RedisClient.Set(ctx, cacheKey, cacheVal, 10*time.Minute)
 	}
 
 	return res, nil

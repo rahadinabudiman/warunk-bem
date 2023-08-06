@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"time"
 	"warunk-bem/domain"
@@ -32,6 +33,18 @@ func NewDashboardUsecase(DashboardRepo domain.DashboardRepository, UserRepo doma
 }
 
 func (du *dashboardUsecase) GetDashboardData(c context.Context, userID string, rp int64, p int64, filter interface{}, setsort interface{}) (*domain.DashboardData, error) {
+
+	var res *domain.DashboardData
+
+	cachekey := "dashboard_data:" + userID
+	val, err := du.RedisClient.Get(c, cachekey).Result()
+	if err == nil {
+		if err := json.Unmarshal([]byte(val), &res); err != nil {
+			return nil, errors.New("failed to unmarshal cache")
+		}
+		return res, nil
+	}
+
 	ctx, cancel := context.WithTimeout(c, du.contextTimeout)
 	defer cancel()
 
@@ -58,6 +71,11 @@ func (du *dashboardUsecase) GetDashboardData(c context.Context, userID string, r
 		Saldo:  saldo,
 		Profil: profil,
 		Produk: produkList,
+	}
+
+	cacheValue, err := json.Marshal(dashboardData)
+	if err == nil {
+		du.RedisClient.Set(c, cachekey, cacheValue, 10*time.Minute)
 	}
 
 	return dashboardData, nil

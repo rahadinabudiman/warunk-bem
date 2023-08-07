@@ -194,14 +194,30 @@ func (kr *WarunkRepository) RemoveProduct(ctx context.Context, WarunkID string, 
 	return nil
 }
 
-func (kr *WarunkRepository) FindOneByStatus(ctx context.Context, status string) (*domain.Warunk, error) {
+func (kr *WarunkRepository) FindLatestByStatus(ctx context.Context, status string) (*domain.Warunk, error) {
 	var (
 		Warunk domain.Warunk
 		err    error
 	)
 
-	err = kr.Collection.FindOne(ctx, bson.M{"status": status}).Decode(&Warunk)
+	filter := bson.M{"status": status}
+
+	opts := options.Find()
+	opts.SetSort(bson.M{"_id": -1})
+	opts.SetLimit(1)
+
+	cursor, err := kr.Collection.Find(ctx, filter, opts)
 	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	if cursor.Next(ctx) {
+		err := cursor.Decode(&Warunk)
+		if err != nil {
+			return nil, err
+		}
+	} else {
 		return nil, err
 	}
 

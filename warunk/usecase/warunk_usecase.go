@@ -72,6 +72,16 @@ func (fu *WarunkUsecase) InsertOne(ctx context.Context, req *domain.InsertWarunk
 			}
 
 			produks = append(produks, newProduk)
+
+			if req.Status == "Buka" {
+				if v.ID == produk.ID {
+					produk.Stock = v.Stock
+					_, err := fu.ProdukRepo.UpdateOne(ctx, produk, produk.ID.Hex())
+					if err != nil {
+						return nil, errors.New("cannot update stock produk")
+					}
+				}
+			}
 		}
 
 		req.ID = primitive.NewObjectID()
@@ -132,6 +142,16 @@ func (fu *WarunkUsecase) InsertOne(ctx context.Context, req *domain.InsertWarunk
 			}
 
 			produks = append(produks, newProduk)
+
+			if req.Status == "Buka" {
+				if v.ID == produk.ID {
+					produk.Stock = v.Stock
+					_, err := fu.ProdukRepo.UpdateOne(ctx, produk, produk.ID.Hex())
+					if err != nil {
+						return nil, errors.New("cannot update stock produk")
+					}
+				}
+			}
 		}
 
 		req.ID = primitive.NewObjectID()

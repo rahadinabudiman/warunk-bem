@@ -43,7 +43,7 @@ type WarunkRepository interface {
 	InsertOne(ctx context.Context, req *Warunk) (*Warunk, error)
 	FindOne(ctx context.Context, id string) (*Warunk, error)
 	FindOneByStatusAndDate(ctx context.Context, status string, date string) (*Warunk, error)
-	FindOneByStatus(ctx context.Context, status string) (*Warunk, error)
+	FindLatestByStatus(ctx context.Context, status string) (*Warunk, error)
 	FindOneWarunk(ctx context.Context, id string) (*Warunk, error)
 	GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]Warunk, int64, error)
 	UpdateOne(ctx context.Context, Warunk *Warunk, id string) (*Warunk, error)

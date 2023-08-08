@@ -130,14 +130,6 @@ func main() {
 	KeranjangUsecase := _keranjangUcase.NewKeranjangUsecase(KeranjangRepository, ProdukRepository, userRepo, redisclient, timeoutContext)
 	_keranjangHttp.NewKeranjangHandler(protected, protectedAdmin, KeranjangUsecase, ProdukUsecase)
 
-	TransaksiRepository := _transaksiRepo.NewTransaksiRepository(database)
-	TransaksiUsecase := _transaksiUsecase.NewTransaksiUsecase(TransaksiRepository, KeranjangRepository, ProdukRepository, userRepo, userAmountRepo, redisclient, timeoutContext)
-	_transaksihttp.NewUserHandler(protected, protectedAdmin, TransaksiUsecase)
-
-	DashboardRepository := _dashboardRepo.NewDashboardRepository(database)
-	DashboardUsecase := _dashboardUcase.NewDashboardUsecase(DashboardRepository, userRepo, userAmountRepo, ProdukRepository, TransaksiRepository, redisclient, timeoutContext)
-	_dashboardHttp.NewDashboardHandler(protected, DashboardUsecase)
-
 	FavoriteRepository := _favoriteRepo.NewFavoriteRepository(database)
 	FavoriteUsecase := _favoriteUsecase.NewFavoriteUsecase(FavoriteRepository, ProdukRepository, userRepo, redisclient, timeoutContext)
 	_favoriteHttp.NewFavoriteHandler(protected, protectedAdmin, FavoriteUsecase, ProdukUsecase)
@@ -149,6 +141,14 @@ func main() {
 	WarunkRepository := _warunkRepo.NewWarunkRepository(database)
 	WarunkUsecase := _warunktUsecase.NewWarunkUsecase(WarunkRepository, ProdukRepository, userRepo, redisclient, timeoutContext)
 	_warunkHttp.NewWarunkHandler(protectedAdmin, WarunkUsecase, ProdukUsecase)
+
+	TransaksiRepository := _transaksiRepo.NewTransaksiRepository(database)
+	TransaksiUsecase := _transaksiUsecase.NewTransaksiUsecase(TransaksiRepository, KeranjangRepository, ProdukRepository, userRepo, userAmountRepo, WarunkRepository, redisclient, timeoutContext)
+	_transaksihttp.NewUserHandler(protected, protectedAdmin, TransaksiUsecase)
+
+	DashboardRepository := _dashboardRepo.NewDashboardRepository(database)
+	DashboardUsecase := _dashboardUcase.NewDashboardUsecase(DashboardRepository, userRepo, userAmountRepo, ProdukRepository, TransaksiRepository, redisclient, timeoutContext)
+	_dashboardHttp.NewDashboardHandler(protected, DashboardUsecase)
 
 	UserAmountUsecase := _userAmountUsecase.NewUserAmountUsecase(userAmountRepo, userRepo, redisclient, timeoutContext)
 	_userAmounthttp.NewUserAmountHandler(protectedAdmin, UserAmountUsecase)

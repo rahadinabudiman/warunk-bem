@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 	"warunk-bem/domain"
 
@@ -44,7 +43,6 @@ func (fu *WarunkUsecase) InsertOne(ctx context.Context, req *domain.InsertWarunk
 		tanggalPembuatan := findLatest.CreatedAt
 		StatusPembuatan := findLatest.Status
 		formattedTanggal := tanggalPembuatan.Format("2006-01-02")
-		fmt.Println(formattedTanggal)
 
 		user, err := fu.UserRepo.FindOne(ctx, req.UserID)
 		if err != nil {

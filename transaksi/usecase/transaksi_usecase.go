@@ -18,17 +18,19 @@ type TransaksiUsecase struct {
 	ProdukRepo     domain.ProdukRepository
 	UserRepo       domain.UserRepository
 	UserAmountRepo domain.UserAmountRepository
+	WarunkRepo     domain.WarunkRepository
 	RedisClient    *redis.Client
 	contextTimeout time.Duration
 }
 
-func NewTransaksiUsecase(TransaksiRepo domain.TransaksiRepository, KeranjangRepo domain.KeranjangRepository, ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, UserAmountRepo domain.UserAmountRepository, RedisClient *redis.Client, contextTimeout time.Duration) domain.TransaksiUsecase {
+func NewTransaksiUsecase(TransaksiRepo domain.TransaksiRepository, KeranjangRepo domain.KeranjangRepository, ProdukRepo domain.ProdukRepository, UserRepo domain.UserRepository, UserAmountRepo domain.UserAmountRepository, WarunkRepo domain.WarunkRepository, RedisClient *redis.Client, contextTimeout time.Duration) domain.TransaksiUsecase {
 	return &TransaksiUsecase{
 		TransaksiRepo:  TransaksiRepo,
 		KeranjangRepo:  KeranjangRepo,
 		ProdukRepo:     ProdukRepo,
 		UserRepo:       UserRepo,
 		UserAmountRepo: UserAmountRepo,
+		WarunkRepo:     WarunkRepo,
 		RedisClient:    RedisClient,
 		contextTimeout: contextTimeout,
 	}
@@ -100,6 +102,19 @@ func (tu *TransaksiUsecase) InsertOne(ctx context.Context, req *dtos.InsertTrans
 
 	ctx, cancel := context.WithTimeout(ctx, tu.contextTimeout)
 	defer cancel()
+
+	statusWarunk, err := tu.WarunkRepo.FindLatestByStatus(ctx, "Buka")
+	if err != nil {
+		return nil, errors.New("cannot find warunk open")
+	}
+
+	tanggalBuka := statusWarunk.CreatedAt
+	tanggalBukaFormatted := tanggalBuka.Format("2006-01-02")
+	tanggalSekarang := time.Now().Format("2006-01-02")
+
+	if tanggalBukaFormatted != tanggalSekarang {
+		return nil, errors.New("warunk is not open")
+	}
 
 	produk, err := tu.ProdukRepo.FindOne(ctx, req.ProdukID.Hex())
 	if err != nil {

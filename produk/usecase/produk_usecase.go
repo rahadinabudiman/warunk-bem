@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 	"warunk-bem/domain"
 	"warunk-bem/dtos"
@@ -83,6 +84,8 @@ func (pu *produkUsecase) InsertOne(c context.Context, req *dtos.InsertProdukRequ
 	if err != nil {
 		return res, errors.New("failed to create Produk")
 	}
+
+	fmt.Println(createdProduk)
 
 	res = &dtos.InsertProdukResponse{
 		Name:     createdProduk.Name,

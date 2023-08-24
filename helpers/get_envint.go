@@ -8,7 +8,7 @@ import (
 func GetEnvInt(key string) (int, error) {
 	strVal := os.Getenv(key)
 	if strVal == "" {
-		return 0, nil // or return an error if you consider a missing value as an error
+		return 0, nil
 	}
 
 	val, err := strconv.Atoi(strVal)

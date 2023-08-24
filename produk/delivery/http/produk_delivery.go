@@ -342,7 +342,7 @@ func (cp *ProdukHandler) DeleteOne(c *gin.Context) {
 		return
 	}
 
-	result, err := cp.ProdukUsecase.DeleteOne(ctx, id, idAdmin, req)
+	_, err = cp.ProdukUsecase.DeleteOne(ctx, id, idAdmin, req)
 	if err != nil {
 		c.JSON(
 			http.StatusBadRequest,
@@ -357,10 +357,9 @@ func (cp *ProdukHandler) DeleteOne(c *gin.Context) {
 
 	c.JSON(
 		http.StatusOK,
-		dtos.NewResponse(
+		dtos.NewResponseMessage(
 			http.StatusOK,
 			"Success Delete Produk",
-			result,
 		),
 	)
 }

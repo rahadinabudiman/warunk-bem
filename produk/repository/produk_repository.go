@@ -70,18 +70,28 @@ func (r *produkRepository) FindOne(ctx context.Context, id string) (*domain.Prod
 
 	return &produk, nil
 }
+
 func (r *produkRepository) GetAllWithPage(ctx context.Context, rp int64, p int64, filter interface{}, setsort interface{}) ([]domain.Produk, int64, error) {
 	var (
 		produk []domain.Produk
 		err    error
 	)
 
+	// Add the condition for deleted_at being null or nil
+	nullOrNilCondition := bson.M{"$in": []interface{}{nil, primitive.Null{}}}
+	filterWithDeletedAt := bson.M{
+		"$and": []interface{}{
+			filter,
+			bson.M{"deleted_at": nullOrNilCondition},
+		},
+	}
+
 	findOptions := options.Find()
 	findOptions.SetLimit(rp)
 	findOptions.SetSkip((p - 1) * rp)
 	findOptions.SetSort(setsort)
 
-	cursor, err := r.Collection.Find(ctx, filter, findOptions)
+	cursor, err := r.Collection.Find(ctx, filterWithDeletedAt, findOptions)
 	if err != nil {
 		return produk, 0, err
 	}
@@ -95,13 +105,14 @@ func (r *produkRepository) GetAllWithPage(ctx context.Context, rp int64, p int64
 		produk = append(produk, produkTemp)
 	}
 
-	total, err := r.Collection.CountDocuments(ctx, filter)
+	total, err := r.Collection.CountDocuments(ctx, filterWithDeletedAt)
 	if err != nil {
 		return produk, 0, err
 	}
 
 	return produk, total, nil
 }
+
 func (r *produkRepository) UpdateOne(ctx context.Context, produk *domain.Produk, id string) (*domain.Produk, error) {
 	var (
 		err error
@@ -122,16 +133,19 @@ func (r *produkRepository) UpdateOne(ctx context.Context, produk *domain.Produk,
 	return produk, nil
 }
 func (r *produkRepository) DeleteOne(ctx context.Context, id string) error {
-	var (
-		err error
-	)
-
 	idHex, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return err
 	}
 
-	_, err = r.Collection.DeleteOne(ctx, bson.M{"_id": idHex})
+	filter := bson.M{"_id": idHex}
+	update := bson.M{
+		"$set": bson.M{
+			"deleted_at": time.Now(),
+		},
+	}
+
+	_, err = r.Collection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
 	}

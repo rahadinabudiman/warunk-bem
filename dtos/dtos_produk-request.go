@@ -11,6 +11,7 @@ type InsertProdukRequest struct {
 	ID        primitive.ObjectID    `bson:"_id" json:"id"`
 	CreatedAt time.Time             `json:"created_at"`
 	UpdatedAt time.Time             `json:"updated_at"`
+	DeletedAt primitive.ObjectID    `bson:"deleted_at" json:"deleted_at"`
 	Slug      string                `bson:"slug" json:"slug" form:"slug"`
 	Name      string                `bson:"name" json:"name" form:"name" validate:"required"`
 	Detail    string                `bson:"detail" json:"detail" form:"detail" validate:"required"`

@@ -89,7 +89,7 @@ func (fu *WarunkUsecase) InsertOne(ctx context.Context, req *domain.InsertWarunk
 		tanggalBuat := req.CreatedAt
 		FormatTanggalBuat := tanggalBuat.Format("2006-01-02")
 		if FormatTanggalBuat == formattedTanggal && req.Status == StatusPembuatan {
-			return nil, errors.New("warunk already exist")
+			return nil, errors.New("warunk already open")
 		}
 
 		_, err = fu.WarunkRepo.InsertOne(ctx, &domain.Warunk{
